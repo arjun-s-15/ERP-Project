@@ -1,0 +1,17 @@
+sample_data/
+.env
+.boto3_test.py
+pyproject.toml
+README.md
+research.ipynb 
+uv.lock
+.git/
+.gitignore
+.dockerignore
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+.DS_Store
