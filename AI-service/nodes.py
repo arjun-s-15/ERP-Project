@@ -139,10 +139,15 @@ def code_validation_routing(state: GraphState) -> Literal["code_generator_node",
         return "code_generator_node"
 
 def executor_node(state: GraphState):
-    file_path = state.get('file_path', '')
-    code = state.get('code', '')
+    file_path = state.get('file_path', None)
+    code = state.get('code', None)
+    if not file_path:
+        return {"execution_error": "file_path is missing from state"}
+    
     try:
-        df = pd.read_csv(file_path)
+        response = s3_client.get_object(Bucket=BUCKET_NAME, Key=file_path)
+        csv_content = response['Body'].read().decode('utf-8')
+        df = pd.read_csv(StringIO(csv_content))
 
         local_vars = {
             "df": df,
@@ -152,12 +157,21 @@ def executor_node(state: GraphState):
         transformed_df = local_vars["df"]
         return {"transformed_df": transformed_df, "execution_error": None}
     except Exception:
+        
         return {"execution_error": traceback.format_exc()}
     
 def post_validator_node(state: GraphState):
-    df = state["transformed_df"]
+    df = state.get("transformed_df", None)
     errors = []
     warnings = []
+
+    if df is None or df.empty: 
+        errors = ["Error in code execution, transformed df not generated."]
+        return {
+            "validation_passed": False,
+            "validation_feedback": {"errors": errors},
+            "warnings": None
+        }
 
     # Normalize column names for safety
     df.columns = df.columns.str.strip()

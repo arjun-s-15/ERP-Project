@@ -169,6 +169,7 @@ Generated Code:
 
 Validation Rules:
 - Every operation in the plan must appear in the code.
+- Make sure transformation_plan is not used as a data structure in the code.
 - The correct source and target columns must be used.
 - Column renames must match exactly.
 - Type conversions must match the target dtype.

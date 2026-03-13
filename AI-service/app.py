@@ -60,7 +60,7 @@ async def run_graph(input_file_path: str):
         csv_buffer = transformed_df.to_csv(index=False)
         s3_client.put_object(
             Bucket=BUCKET_NAME,
-            key=output_filename,
+            Key=output_filename,
             Body=csv_buffer,
             ContentType='text/csv'
         )
