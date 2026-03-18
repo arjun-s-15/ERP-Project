@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="invoice.css">
+</head>
+
+<body>
+
+<div class="header">
+    <h2>GST INVOICE</h2>
+    <p>ABC Fintech Pvt Ltd</p>
+    <p>GSTIN: 07ABCDE1234F1Z5</p>
+</div>
+
+<p>Invoice Number: <span th:text="${invoice.invoiceNumber}"></span></p>
+<p>Customer: <span th:text="${invoice.customerName}"></span></p>
+
+<table>
+
+    <tr>
+        <th>Product</th>
+        <th>Amount</th>
+    </tr>
+
+    <tr>
+        <td th:text="${invoice.product}"></td>
+        <td th:text="${invoice.amount}"></td>
+    </tr>
+
+</table>
+
+<p>CGST: <span th:text="${invoice.cgst}"></span></p>
+<p>SGST: <span th:text="${invoice.sgst}"></span></p>
+
+<p class="total">
+    Total: <span th:text="${invoice.total}"></span>
+</p>
+
+</body>
+</html>
