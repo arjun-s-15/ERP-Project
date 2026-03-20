@@ -55,7 +55,7 @@ async def run_graph(input_file_path: str):
         result = graph.invoke(input={"file_path": input_file_path}) # type: ignore
         transformed_df = result["transformed_df"]
 
-        output_filename = f"transformed_{os.path.basename(input_file_path)}"
+        output_filename = f"data/transformed_{os.path.basename(input_file_path)}"
 
         csv_buffer = transformed_df.to_csv(index=False)
         s3_client.put_object(
