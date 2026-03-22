@@ -82,13 +82,13 @@ with DAG(
         with engine.begin() as conn:
             conn.execute(text(query))
 
-        for chunk in pd.read_csv(file_obj.get()["Body"], chunksize=50000):
+        for chunk in pd.read_csv(file_obj.get()["Body"], chunksize=25000):
             chunk.columns = chunk.columns.str.strip()
-
+            
             chunk.to_sql(
                 RAW_TABLE,
                 engine,
-                if_exists="replace",
+                if_exists="append",
                 index=False,
                 method="multi"
             )
