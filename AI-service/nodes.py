@@ -1,4 +1,3 @@
-from io import StringIO
 import os
 import traceback
 from typing import Literal
@@ -7,7 +6,6 @@ from langchain.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END
 import pandas as pd
-import boto3
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -16,21 +14,12 @@ from prompts import CODE_GENERATOR_PROMPT, CODE_GENERATOR_RETRY_PROMPT, CODE_VAL
 from utils import clean_code, canonical_feature_set
 
 GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
-s3_client = boto3.client(
-    's3',
-    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
-    region_name=os.getenv('AWS_REGION')
-)
-BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
 
 def get_schema_node(state: GraphState):
-    file_path = state.get('file_path', None)
+    file_path = state.get('input_path', None)
     schema = {}
     if file_path:
-        response = s3_client.get_object(Bucket=BUCKET_NAME, Key=file_path)
-        csv_content = response['Body'].read().decode('utf-8')
-        df = pd.read_csv(StringIO(csv_content))
+        df = pd.read_parquet(file_path)
 
         schema = {
             "num_rows": df.shape[0],
@@ -139,15 +128,14 @@ def code_validation_routing(state: GraphState) -> Literal["code_generator_node",
         return "code_generator_node"
 
 def executor_node(state: GraphState):
-    file_path = state.get('file_path', None)
+    input_path = state.get('input_path', None)
+    output_path = state.get('output_path', None)
     code = state.get('code', None)
-    if not file_path:
+    if not input_path:
         return {"execution_error": "file_path is missing from state"}
     
     try:
-        response = s3_client.get_object(Bucket=BUCKET_NAME, Key=file_path)
-        csv_content = response['Body'].read().decode('utf-8')
-        df = pd.read_csv(StringIO(csv_content))
+        df = pd.read_parquet(input_path)
 
         local_vars = {
             "df": df,
@@ -155,15 +143,17 @@ def executor_node(state: GraphState):
         code = clean_code(code)
         exec(code, {}, local_vars)
         transformed_df = local_vars["df"]
-        return {"transformed_df": transformed_df, "execution_error": None}
+        transformed_df.to_parquet(output_path, index=False)
+        return {"execution_error": None}
     except Exception:
-        
         return {"execution_error": traceback.format_exc()}
     
 def post_validator_node(state: GraphState):
-    df = state.get("transformed_df", None)
+    path = state.get("output_path", None)
     errors = []
     warnings = []
+
+    df = pd.read_parquet(path)
 
     if df is None or df.empty: 
         errors = ["Error in code execution, transformed df not generated."]

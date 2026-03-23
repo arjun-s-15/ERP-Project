@@ -68,6 +68,13 @@ RULES
 
 10. Operations must be executable sequentially. If a column is renamed, all later operations must reference the new column name.
 
+11. Do NOT drop columns unless they are completely irrelevant or duplicate.
+
+12. Additional columns not part of the canonical feature set should be preserved, as they may be useful for downstream tasks such as feature engineering, analytics, or modeling.
+
+13. Only drop columns if they are clearly unnecessary or cannot be used meaningfully.
+
+
 --------------------------------
 
 OUTPUT FORMAT
@@ -120,14 +127,33 @@ Only make changes that are necessary to fix the errors.
 RULES
 
 1. Preserve correct operations from the previous plan whenever possible.
-2. Only modify steps related to the validation errors.
-3. Ensure all required canonical features are produced.
-4. Ensure datatypes match the expected canonical datatype.
-5. Operations must be logically ordered and executable sequentially.
-6. If a column is renamed, all later operations must reference the new column name.
-7. Use only columns present in the dataset schema unless performing feature engineering.
-8. Do NOT add data cleaning logic such as filtering negative values or removing rows.
-9. Return a complete TransformationPlan.
+
+2. Only modify or add steps necessary to resolve the validation errors.
+
+3. Ensure all required canonical features are produced:
+   - If missing, create them using feature_engineering when possible.
+
+4. If a required feature cannot be directly mapped:
+   - Derive or generate it using available columns (e.g., concatenation).
+
+5. If a canonical feature is optional and cannot be mapped or derived:
+   - Skip it (do not introduce unnecessary operations).
+
+6. Ensure datatypes match the expected canonical datatype.
+
+7. Operations must be logically ordered and executable sequentially.
+
+8. If a column is renamed, all later operations must reference the new column name.
+
+9. Use only columns present in the dataset schema unless performing feature engineering.
+
+10. When creating or deriving features, prefer simple deterministic formulas (e.g., concat, arithmetic).
+
+11. Use allow_if_missing = true for feature_engineering steps that depend on columns that may not always exist.
+
+12. Do NOT add data cleaning logic such as filtering negative values or removing rows.
+
+13. Return a complete TransformationPlan.
 
 --------------------------------
 

@@ -20,7 +20,7 @@ class TransformationStep(BaseModel):
     source_columns: Optional[List[str]] = Field(default=None, description="Multiple columns used for feature engineering")
     formula: Optional[str] = Field(default=None, description="Formula used for feature engineering")
     fill_value: Optional[str] = Field(default=None, description="Value used for missing value imputation")
-    allow_if_missing: Optional[bool] = False
+    allow_if_missing: Optional[bool] = Field(default=False, description="Allowing column to be skipped if it's missing in the dataset schema.")
 
 class TransformationPlan(BaseModel):
     operations: List[TransformationStep] = Field(description="Ordered list of transformations required to convert the dataset to canonical format")
@@ -32,12 +32,12 @@ class CodeValidationResult(BaseModel):
     reasoning: str = Field(description="The reasoning behind the validation output.")
 
 class GraphState(TypedDict):
-    file_path: str
+    input_path: str
+    output_path: str
     schema: dict
     code: str 
     feedback: CodeValidationResult
     transformation_plan: TransformationPlan
-    transformed_df: pd.DataFrame
     execution_error: str
     validation_passed: bool 
     validator_feedback: str

@@ -18,6 +18,11 @@ s3_client = boto3.client(
     region_name=os.getenv('AWS_REGION')
 )
 BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
+LOCAL_INPUT_DIR = "/tmp/input"
+LOCAL_OUTPUT_DIR = "/tmp/output"
+
+os.makedirs(LOCAL_INPUT_DIR, exist_ok=True)
+os.makedirs(LOCAL_OUTPUT_DIR, exist_ok=True)
 
 # --- FastAPI App Setup ---
 app = FastAPI()
@@ -48,27 +53,40 @@ async def test_s3_connection():
             }
         )
 
+
 @app.post("/run-graph")
-async def run_graph(input_file_path: str):
+async def run_graph(input_filename: str):
     try:
+        local_input_path = os.path.join(LOCAL_INPUT_DIR, input_filename)
 
-        result = graph.invoke(input={"file_path": input_file_path}) # type: ignore
-        transformed_df = result["transformed_df"]
-
-        output_filename = f"data/transformed_{os.path.basename(input_file_path)}"
-
-        csv_buffer = transformed_df.to_csv(index=False)
-        s3_client.put_object(
-            Bucket=BUCKET_NAME,
-            Key=output_filename,
-            Body=csv_buffer,
-            ContentType='text/csv'
+        s3_client.download_file(
+            BUCKET_NAME,
+            f"input/{input_filename}",
+            local_input_path
         )
+
+        output_filename = f"transformed_{input_filename}"
+        local_output_path = os.path.join(LOCAL_OUTPUT_DIR, output_filename)
+
+        result = graph.invoke({
+            "input_path": local_input_path,
+            "output_path": local_output_path
+        }) #type: ignore
+
+        transformed_path = result["output_path"]
+
+        s3_output_key = f"data/{output_filename}"
+
+        with open(transformed_path, "rb") as f:
+            s3_client.upload_fileobj(
+                f,
+                BUCKET_NAME,
+                s3_output_key
+            )
 
         return {
             "status": "ok",
-            "output_file": output_filename,
-            "s3_path": f"s3://{BUCKET_NAME}/{output_filename}"
+            "s3_output_path": f"s3://{BUCKET_NAME}/{s3_output_key}"
         }
     except Exception as e:
         return JSONResponse(
