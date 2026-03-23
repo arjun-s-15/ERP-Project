@@ -15,7 +15,7 @@ from src.utility import SQLQueryBuilder, SalesRawTableStrategy
 
 
 BUCKET_NAME = "insighto-s3-bucket"
-FILE_KEY = "data/transformed_sample_sales.csv"
+FILE_KEY = "data/transformed_sample_dataset.parquet"
 SQS_QUEUE_URL = "https://sqs.us-east-1.amazonaws.com/048013208170/InsightoQueue"
 
 RAW_TABLE = "sales_raw"
@@ -23,7 +23,7 @@ TRANSFORMED_TABLE = "sales_transformed"
 
 
 with DAG(
-    dag_id="sales_elt_pipeline",
+    dag_id="sales_extract_transform_dag",
     start_date=datetime(2024, 1, 1),
     tags=["elt", "sales"],
 ) as dag:
@@ -82,16 +82,22 @@ with DAG(
         with engine.begin() as conn:
             conn.execute(text(query))
 
-        for chunk in pd.read_csv(file_obj.get()["Body"], chunksize=25000):
-            chunk.columns = chunk.columns.str.strip()
+        body = file_obj.get()["Body"].read()
+        buffer = io.BytesIO(body)  
+        del body
+
+        df = pd.read_parquet(buffer)
+        del buffer
+        df.columns = df.columns.str.strip()
             
-            chunk.to_sql(
-                RAW_TABLE,
-                engine,
-                if_exists="append",
-                index=False,
-                method="multi"
-            )
+        df.to_sql(
+            RAW_TABLE,
+            engine,
+            if_exists="replace",
+            index=False,
+            method="multi",
+            chunksize=25000
+        )   
 
         return f"Successfully loaded {actual_key}"
 
