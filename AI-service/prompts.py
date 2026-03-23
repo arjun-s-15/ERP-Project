@@ -44,14 +44,29 @@ The transformation may include:
 
 RULES
 
-1. Use only columns present in the dataset schema.
-2. Do NOT invent new columns unless performing feature engineering.
-3. If a canonical feature can be mapped directly, use a rename operation.
-4. If a datatype does not match the canonical requirement, add a cast operation.
-5. If a timestamp column exists but is not datetime type, use to_datetime. And make sure to set target_dtype.
-6. If a canonical feature must be derived from multiple columns, use feature_engineering.
-7. The operations list should be ordered logically.
-8. Operations must be executable sequentially. If a column is renamed, all later operations must reference the new column name.
+1. Use only columns present in the dataset schema unless creating a new feature via feature engineering.
+
+2. If a canonical feature can be mapped directly, use a rename operation.
+
+3. If a datatype does not match the canonical requirement, add a cast operation.
+
+4. If a timestamp column exists but is not datetime type, use to_datetime and set target_dtype.
+
+5. If a canonical feature can be derived from multiple columns, use feature_engineering.
+
+6. If a canonical feature is marked as required but does not exist in the dataset:
+   - Create it using feature_engineering if possible
+   - Otherwise, generate it using available columns (e.g., concatenation)
+   - Set allow_if_missing = true if generation depends on optional columns
+
+7. If a canonical feature is optional and cannot be mapped or derived:
+   - Skip it (do not include unnecessary operations)
+
+8. Do NOT force mappings for columns that do not semantically match the canonical feature.
+
+9. The operations list should be ordered logically.
+
+10. Operations must be executable sequentially. If a column is renamed, all later operations must reference the new column name.
 
 --------------------------------
 

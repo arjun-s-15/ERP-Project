@@ -20,6 +20,7 @@ class TransformationStep(BaseModel):
     source_columns: Optional[List[str]] = Field(default=None, description="Multiple columns used for feature engineering")
     formula: Optional[str] = Field(default=None, description="Formula used for feature engineering")
     fill_value: Optional[str] = Field(default=None, description="Value used for missing value imputation")
+    allow_if_missing: Optional[bool] = False
 
 class TransformationPlan(BaseModel):
     operations: List[TransformationStep] = Field(description="Ordered list of transformations required to convert the dataset to canonical format")
