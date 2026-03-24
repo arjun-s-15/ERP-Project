@@ -91,9 +91,9 @@ with DAG(
         output_buffer.seek(0)
         
         s3.get_conn().put_object(
-            BUCKET_NAME,
-            output_key,
-            output_buffer.getvalue()
+            Bucket=BUCKET_NAME,
+            Key=output_key,
+            Body=output_buffer.getvalue()
         )
         print(f"Uploaded daily sales file to s3://{BUCKET_NAME}/{output_key}")
         return f"Successfully transformed {actual_key} -> {output_key}"
