@@ -28,7 +28,7 @@ class DataTransformationTemplate(ABC):
         raw_df = self.reorder_data(self.df)
         transformed_df = self.derive_features(raw_df)
         cleaned_df = self.clean_data(transformed_df)
-        return cleaned_df
+        return cleaned_df 
 
     @abstractmethod
     def reorder_data(self, df):
@@ -75,7 +75,7 @@ class DailySalesDataTransformation(DataTransformationTemplate):
             df.groupby("datetime", as_index=False)['quantity']
             .sum()
             .rename(columns={"quantity": "total_sales"})
-        )
+        ) 
         df_daily = (
             df_daily
             .sort_values(by="datetime")
