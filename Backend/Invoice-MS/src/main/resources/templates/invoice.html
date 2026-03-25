@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="invoice.css">
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" href="invoice.css"/>
 </head>
 
 <body>
@@ -18,17 +18,17 @@
 <p>Customer: <span th:text="${invoice.customerName}"></span></p>
 
 <table>
-
     <tr>
-        <th>Product</th>
-        <th>Amount</th>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Price</th>
     </tr>
 
-    <tr>
-        <td th:text="${invoice.product}"></td>
-        <td th:text="${invoice.amount}"></td>
+    <tr th:each="item : ${invoice.items}">
+        <td th:text="${item.name}"></td>
+        <td th:text="${item.quantity}"></td>
+        <td th:text="${item.price}"></td>
     </tr>
-
 </table>
 
 <p>CGST: <span th:text="${invoice.cgst}"></span></p>
