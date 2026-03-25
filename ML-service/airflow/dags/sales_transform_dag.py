@@ -2,10 +2,8 @@ import json
 
 from airflow.sdk import DAG, task
 from airflow.providers.standard.operators.python import PythonOperator
-from airflow.providers.amazon.aws.sensors.s3 import S3Hook, S3KeySensor
+from airflow.providers.amazon.aws.sensors.s3 import S3Hook
 from airflow.providers.amazon.aws.sensors.sqs import SqsSensor
-from airflow.providers.postgres.hooks.postgres import PostgresHook
-from sqlalchemy import text
 
 from datetime import datetime
 import pandas as pd

@@ -11,5 +11,5 @@ def get_predictors(df: pd.DataFrame):
     Returns:
         list: A list of column names to be used as model inputs.
     """
-    feature_cols = df.columns.drop(["target"])
+    feature_cols = df.columns
     return list(feature_cols)
