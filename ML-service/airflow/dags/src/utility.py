@@ -55,3 +55,40 @@ def cross_validate_model(regressor, X, y):
     print(f"CV Mean MAE  : {np.mean(cv_mae):,.2f} ± {np.std(cv_mae):,.2f}")
     
     return np.mean(cv_rmse), np.std(cv_rmse)
+
+
+def suggest_params(trial, param_space: dict):
+    """
+    Maps a static parameter configuration to Optuna trial suggestion methods.
+
+    This helper bridges the gap between a declarative dictionary (the search space) 
+    and the Optuna Trial object, allowing for dynamic hyperparameter sampling.
+
+    Args:
+        trial (optuna.trial.Trial): The current Optuna trial object.
+        param_space (dict): A dictionary mapping parameter names to specifications 
+                            (e.g., {'n_estimators': ['int', 10, 100]}).
+
+    Returns:
+        dict: A dictionary of sampled hyperparameters for the current trial.
+    """
+    params = {}
+    for name, spec in param_space.items():
+        kind = spec[0]
+
+        if kind == 'int':
+            _, low, high = spec
+            params[name] = trial.suggest_int(name, low, high)
+
+        elif kind == "float":
+            _, low, high = spec
+            params[name] = trial.suggest_float(name, low, high)
+        
+        elif kind == "categorical":
+            _, choices = spec
+            params[name] = trial.suggest_categorical(name, choices)
+
+        else:
+            raise ValueError(f"Unknown param type: {kind}")
+    
+    return params

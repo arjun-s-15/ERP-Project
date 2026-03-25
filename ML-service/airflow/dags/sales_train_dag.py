@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from src.data_preprocessing import DailySalesDataPreProcessing 
 # from src.utility import SQLTableBuilder, TrainTestTableStrategy 
 from src.orchestrator import TrainingOrchestrator 
-# from src.model_tuning import OptunaModelTuner 
+from src.model_tuning import OptunaModelTuner 
 # from src.model_promotion import ModelPromotionManager 
 import psycopg2.extras as extras
 import pandas as pd
@@ -126,12 +126,16 @@ def sales_train_pipeline():
             dict: A report containing the optimized hyperparameters and updated 
                 model metrics.
         """
-        train_data = datasets["train_dataset"]
-        engine = create_engine(CONNECTION_URL)
-        print("Database connected successfully")
-        query = f"SELECT * FROM {train_data} ORDER BY datetime DESC;"
-        train_df = pd.read_sql(query, engine)
+        train_key = datasets["train_dataset"]
+        s3 = S3Hook(aws_conn_id="aws_default")
 
+        file_obj = s3.get_key(train_key, bucket_name=BUCKET_NAME)
+        body = file_obj.get()["Body"].read()
+        buffer = io.BytesIO(body)  
+        del body
+        train_df = pd.read_parquet(buffer)
+        del buffer
+        train_df.columns = train_df.columns.str.strip()
         tuner = OptunaModelTuner(train_df, best_model_data)
         tuned_model_data = tuner.start_tuning()
         print("Tuned model report: ")
@@ -152,10 +156,16 @@ def sales_train_pipeline():
             dict: A dictionary containing the challenger model's path, 
                 performance metrics, and metadata.
         """
-        train_data = datasets["train_dataset"]
-        engine = create_engine(CONNECTION_URL)
-        query = f"SELECT * FROM {train_data} ORDER BY datetime DESC;"
-        train_df = pd.read_sql(query, engine)
+        train_key = datasets["train_dataset"]
+        s3 = S3Hook(aws_conn_id="aws_default")
+
+        file_obj = s3.get_key(train_key, bucket_name=BUCKET_NAME)
+        body = file_obj.get()["Body"].read()
+        buffer = io.BytesIO(body)  
+        del body
+        train_df = pd.read_parquet(buffer)
+        del buffer
+        train_df.columns = train_df.columns.str.strip()
 
         orchestrator = TrainingOrchestrator(train_df)
         challenger_data = orchestrator.train_challenger(tuned_model_data)

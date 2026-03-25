@@ -8,3 +8,4 @@ sqlalchemy>=2.0.48
 boto3>=1.42.69
 pyarrow>=23.0.1
 xgboost>=3.2.0
+optuna>=4.8.0
