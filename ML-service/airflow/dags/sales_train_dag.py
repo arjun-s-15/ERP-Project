@@ -5,7 +5,7 @@ from airflow.providers.amazon.aws.sensors.s3 import S3Hook, S3KeySensor
 from dotenv import load_dotenv
 from src.data_preprocessing import DailySalesDataPreProcessing 
 # from src.utility import SQLTableBuilder, TrainTestTableStrategy 
-# from src.orchestrator import TrainingOrchestrator 
+from src.orchestrator import TrainingOrchestrator 
 # from src.model_tuning import OptunaModelTuner 
 # from src.model_promotion import ModelPromotionManager 
 import psycopg2.extras as extras
@@ -42,7 +42,7 @@ def sales_train_pipeline():
             None
 
         Returns:
-            dict: A mapping of the created table names (e.g., {'train_dataset': 'eur_usd_train', ...}) 
+            dict: A mapping of the created table names (e.g., {'train_dataset': 's3_file_key', ...}) 
                 or None if an error occurs.
         """
         try:
@@ -89,19 +89,25 @@ def sales_train_pipeline():
         Loads training data from the database and executes the model training pipeline.
 
         Args:
-            datasets (dict): A dictionary containing the 'train_dataset' table name.
+            datasets (dict): A dictionary containing the 'train_dataset' file name.
 
         Returns:
             dict: A dictionary containing the best model's performance metrics, 
                 parameters, and metadata.
         """
-        train_data = datasets["train_dataset"]
-        engine = create_engine(CONNECTION_URL)
-        print("Database connected successfully")
-        query = f"SELECT * FROM {train_data} ORDER BY datetime DESC;"
-        train_df = pd.read_sql(query, engine)
+        train_key = datasets["train_dataset"]
+        s3 = S3Hook(aws_conn_id="aws_default")
 
-        orchestrator = TrainingOrchestrator(train_df)
+        file_obj = s3.get_key(train_key, bucket_name=BUCKET_NAME)
+        body = file_obj.get()["Body"].read()
+        buffer = io.BytesIO(body)  
+        del body
+        input_df = pd.read_parquet(buffer)
+        del buffer
+        input_df.columns = input_df.columns.str.strip()
+        print("Train data retrieved: ", input_df.head())
+        
+        orchestrator = TrainingOrchestrator(input_df)
         best_model_dict = orchestrator.run()
         print(best_model_dict)
         return best_model_dict
@@ -181,7 +187,7 @@ def sales_train_pipeline():
 
 
     datasets = data_preprocessing()
-    # best_model_data = model_training(datasets)
+    best_model_data = model_training(datasets)
     # tuned_model_data = hyperparameter_tuning(datasets, best_model_data)
     # challenger_data = train_challenger(datasets, tuned_model_data)
     # model_promotion(datasets, challenger_data)
