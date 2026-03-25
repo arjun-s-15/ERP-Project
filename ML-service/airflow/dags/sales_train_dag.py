@@ -1,111 +1,189 @@
-import json
-
-from airflow.sdk import DAG, task
-from airflow.providers.standard.operators.python import PythonOperator
-from airflow.providers.amazon.aws.sensors.s3 import S3Hook, S3KeySensor
-from airflow.providers.amazon.aws.sensors.sqs import SqsSensor
-from airflow.providers.postgres.hooks.postgres import PostgresHook
-from sqlalchemy import text
-
-from datetime import datetime
-import pandas as pd
+from datetime import datetime, timedelta
 import io
+from airflow.sdk import dag, task 
+from airflow.providers.amazon.aws.sensors.s3 import S3Hook, S3KeySensor
+from dotenv import load_dotenv
+from src.data_preprocessing import DailySalesDataPreProcessing 
+# from src.utility import SQLTableBuilder, TrainTestTableStrategy 
+# from src.orchestrator import TrainingOrchestrator 
+# from src.model_tuning import OptunaModelTuner 
+# from src.model_promotion import ModelPromotionManager 
+import psycopg2.extras as extras
+import pandas as pd
+from sqlalchemy import create_engine, text 
 
-from src.utility import SQLQueryBuilder, SalesRawTableStrategy
-
+load_dotenv()
 
 BUCKET_NAME = "insighto-s3-bucket"
-FILE_KEY = "data/transformed_sample_dataset.parquet"
+FILE_KEY = "data/daily_total_sales.parquet"
 SQS_QUEUE_URL = "https://sqs.us-east-1.amazonaws.com/048013208170/InsightoQueue"
 
-RAW_TABLE = "sales_raw"
-TRANSFORMED_TABLE = "sales_transformed"
+default_args = {
+    'owner': 'atharv',
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5)
+}
 
-
-with DAG(
-    dag_id="sales_train_dag",
-    start_date=datetime(2024, 1, 1),
-    tags=["elt", "sales"],
-) as dag:
-    # -----------------------------------------
-    # 1. SQS Sensor (listen for any S3 event in the queue)
-    # -----------------------------------------
-    wait_sensor = SqsSensor(
-        task_id="wait_for_sqs_msg",
-        sqs_queue=SQS_QUEUE_URL,
-        aws_conn_id="aws_default",
-        max_messages=1,
-        wait_time_seconds=20,
-        mode="reschedule",
-        poke_interval=60,
-        do_xcom_push=True
+@dag(
+        dag_id="sales_train_pipeline",
+        default_args=default_args,
+        start_date=datetime(2026, 3, 24)
     )
+def sales_train_pipeline():
+    """
+    Model training pipeline dag. Trains new models and compare with production model and promote the best model.
+    """
+    @task(multiple_outputs=True)
+    def data_preprocessing():
+        """
+        Orchestrates the preparation and storage of training and testing datasets.
 
-    # -----------------------------------------
-    # 2. Extract & Load
-    # -----------------------------------------
-    
-    def extract_and_load(ti):
-        sqs_data = ti.xcom_pull(key='messages', task_ids=['wait_for_sqs_msg'])
-        print(f"DEBUG: Manually pulled XCom: {sqs_data}")
-        if not sqs_data:
-            raise ValueError("XCom is still None - checking Metadata DB...")
+        Args:
+            None
 
-        message_content = json.loads(sqs_data[0][0]['Body'])
-
+        Returns:
+            dict: A mapping of the created table names (e.g., {'train_dataset': 'eur_usd_train', ...}) 
+                or None if an error occurs.
+        """
         try:
-            record = message_content['Records'][0]
-            actual_key = record['s3']['object']['key']
-            event_time = record['eventTime']
-            
-            print(f"Event detected at {event_time}. File: {actual_key}")
-        except (KeyError, IndexError) as e:
-            print(f"Error parsing SQS message: {e}")
-            return
+            s3 = S3Hook(aws_conn_id="aws_default")
+
+            file_obj = s3.get_key(FILE_KEY, bucket_name=BUCKET_NAME)
+            body = file_obj.get()["Body"].read()
+            buffer = io.BytesIO(body)  
+            del body
+            input_df = pd.read_parquet(buffer)
+            del buffer
+            input_df.columns = input_df.columns.str.strip()
+            print("Input data retrieved: ", FILE_KEY)
+
+            preprocessor = DailySalesDataPreProcessing(input_df)
+            train_df, test_df = preprocessor.preprocess_data()
+
+            # upload train table
+            s3_train_key = "data/sales_train_data.parquet"
+            s3_test_key = "data/sales_test_data.parquet"
+
+            for df, key in [(train_df, s3_train_key), (test_df, s3_test_key)]:
+                buffer = io.BytesIO()
+                df.to_parquet(buffer, index=False)
+                buffer.seek(0)
+
+                s3.get_conn().put_object(
+                    Bucket=BUCKET_NAME,
+                    Key=key,
+                    Body=buffer.getvalue()
+                )
+                print(f"Uploaded: s3://{BUCKET_NAME}/{key}")
+                del buffer
+
+            return {"train_dataset": s3_train_key, "test_dataset": s3_test_key}
+
+        except Exception as e:
+            print(f"Error in data_preprocessing: {e}")
+            return None
+
+    @task(multiple_outputs=True)
+    def model_training(datasets):
+        """
+        Loads training data from the database and executes the model training pipeline.
+
+        Args:
+            datasets (dict): A dictionary containing the 'train_dataset' table name.
+
+        Returns:
+            dict: A dictionary containing the best model's performance metrics, 
+                parameters, and metadata.
+        """
+        train_data = datasets["train_dataset"]
+        engine = create_engine(CONNECTION_URL)
+        print("Database connected successfully")
+        query = f"SELECT * FROM {train_data} ORDER BY datetime DESC;"
+        train_df = pd.read_sql(query, engine)
+
+        orchestrator = TrainingOrchestrator(train_df)
+        best_model_dict = orchestrator.run()
+        print(best_model_dict)
+        return best_model_dict
         
-        if actual_key != FILE_KEY:
-            print(f"Skipping: {actual_key} does not match {FILE_KEY}")
-            return f"Skipped {actual_key}"
+    @task(multiple_outputs=True)
+    def hyperparameter_tuning(datasets, best_model_data):
+        """
+        Performs hyperparameter optimization on the selected model.
+
+        Args:
+            datasets (dict): Dictionary containing the 'train_dataset' table name.
+            best_model_data (dict): Metadata and configuration of the model selected 
+                                    for tuning.
+
+        Returns:
+            dict: A report containing the optimized hyperparameters and updated 
+                model metrics.
+        """
+        train_data = datasets["train_dataset"]
+        engine = create_engine(CONNECTION_URL)
+        print("Database connected successfully")
+        query = f"SELECT * FROM {train_data} ORDER BY datetime DESC;"
+        train_df = pd.read_sql(query, engine)
+
+        tuner = OptunaModelTuner(train_df, best_model_data)
+        tuned_model_data = tuner.start_tuning()
+        print("Tuned model report: ")
+        print(tuned_model_data)
+        return tuned_model_data
+    
+    @task(multiple_outputs=True)
+    def train_challenger(datasets, tuned_model_data):
+        """
+        Trains a final 'challenger' model using the optimized hyperparameters.
+
+        Args:
+            datasets (dict): Dictionary containing the 'train_dataset' table name.
+            tuned_model_data (dict): The optimized hyperparameter configuration 
+                                    retrieved from the tuning phase.
+
+        Returns:
+            dict: A dictionary containing the challenger model's path, 
+                performance metrics, and metadata.
+        """
+        train_data = datasets["train_dataset"]
+        engine = create_engine(CONNECTION_URL)
+        query = f"SELECT * FROM {train_data} ORDER BY datetime DESC;"
+        train_df = pd.read_sql(query, engine)
+
+        orchestrator = TrainingOrchestrator(train_df)
+        challenger_data = orchestrator.train_challenger(tuned_model_data)
         
-        s3 = S3Hook(aws_conn_id="aws_default")
-        file_obj = s3.get_key(actual_key, bucket_name=BUCKET_NAME)
+        print(challenger_data)
+        return challenger_data
+    
+    @task 
+    def model_promotion(datasets, challenger_data):
+        """
+        Evaluates the challenger model against the current champion and promotes if superior.
+
+        Args:
+            datasets (dict): Dictionary containing the 'test_dataset' table name.
+            challenger_data (dict): Metadata and performance metrics for the candidate model.
+
+        Returns:
+            None: Updates the model registry or production alias via ModelPromotionManager.
+        """
+        test_data = datasets["test_dataset"]
+        engine = create_engine(CONNECTION_URL)
+        print("Database connected successfully")
+        query = f"SELECT * FROM {test_data} ORDER BY datetime DESC;"
+        test_df = pd.read_sql(query, engine)
         
-        # -----------------------------
-        # Create table
-        # -----------------------------
-        pg_hook = PostgresHook(postgres_conn_id="app_postgres")
-        engine = pg_hook.get_sqlalchemy_engine()
+        manager = ModelPromotionManager(model_name=challenger_data["name"], test_df=test_df)
+        result = manager.promote_if_better()
+        print(result)
 
-        query_builder = SQLQueryBuilder(strategy=SalesRawTableStrategy(tablename=RAW_TABLE))
-        query = query_builder.get_create_query()
 
-        with engine.begin() as conn:
-            conn.execute(text(query))
-
-        body = file_obj.get()["Body"].read()
-        buffer = io.BytesIO(body)  
-        del body
-
-        df = pd.read_parquet(buffer)
-        del buffer
-        df.columns = df.columns.str.strip()
-            
-        df.to_sql(
-            RAW_TABLE,
-            engine,
-            if_exists="replace",
-            index=False,
-            method="multi",
-            chunksize=25000
-        )   
-
-        return f"Successfully loaded {actual_key}"
-
-    process_data = PythonOperator(
-        task_id="extract_and_load",
-        python_callable=extract_and_load
-    )
-    # -----------------------------------------
-    # DAG Flow
-    # -----------------------------------------
-    wait_sensor >> process_data
+    datasets = data_preprocessing()
+    # best_model_data = model_training(datasets)
+    # tuned_model_data = hyperparameter_tuning(datasets, best_model_data)
+    # challenger_data = train_challenger(datasets, tuned_model_data)
+    # model_promotion(datasets, challenger_data)
+    
+prediction_pipeline = sales_train_pipeline()
