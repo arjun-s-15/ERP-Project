@@ -92,3 +92,23 @@ def suggest_params(trial, param_space: dict):
             raise ValueError(f"Unknown param type: {kind}")
     
     return params
+
+
+def evaluate(model, X_test, y_test):
+    """
+    Computes the RMSE for a model on the test dataset.
+
+    This function handles both regressor instances that return probability 
+    estimates and those that might return multi-column arrays, ensuring the 
+    positive class probability is isolated for scoring.
+
+    Args:
+        model: The trained estimator (must support .predict() or .predict_proba()).
+        X_test (pd.DataFrame): The feature matrix for testing.
+        y_test (pd.Series): The true binary labels.
+
+    Returns:
+        float: The Average RMSE.
+    """
+    y_pred = model.predict(X_test)
+    return np.sqrt(mean_squared_error(y_test, y_pred))

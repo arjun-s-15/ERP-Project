@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from src.data_preprocessing import DailySalesDataPreProcessing 
 from src.orchestrator import TrainingOrchestrator 
 from src.model_tuning import OptunaModelTuner 
-# from src.model_promotion import ModelPromotionManager 
+from src.model_promotion import ModelPromotionManager 
 import pandas as pd
 
 load_dotenv()
@@ -176,17 +176,22 @@ def sales_train_pipeline():
         Evaluates the challenger model against the current champion and promotes if superior.
 
         Args:
-            datasets (dict): Dictionary containing the 'test_dataset' table name.
+            datasets (dict): Dictionary containing the 'test_dataset' file name.
             challenger_data (dict): Metadata and performance metrics for the candidate model.
 
         Returns:
             None: Updates the model registry or production alias via ModelPromotionManager.
         """
-        test_data = datasets["test_dataset"]
-        engine = create_engine(CONNECTION_URL)
-        print("Database connected successfully")
-        query = f"SELECT * FROM {test_data} ORDER BY datetime DESC;"
-        test_df = pd.read_sql(query, engine)
+        test_key = datasets["test_dataset"]
+        s3 = S3Hook(aws_conn_id="aws_default")
+
+        file_obj = s3.get_key(test_key, bucket_name=BUCKET_NAME)
+        body = file_obj.get()["Body"].read()
+        buffer = io.BytesIO(body)  
+        del body
+        test_df = pd.read_parquet(buffer)
+        del buffer
+        test_df.columns = test_df.columns.str.strip()
         
         manager = ModelPromotionManager(model_name=challenger_data["name"], test_df=test_df)
         result = manager.promote_if_better()
@@ -197,6 +202,6 @@ def sales_train_pipeline():
     best_model_data = model_training(datasets)
     tuned_model_data = hyperparameter_tuning(datasets, best_model_data)
     challenger_data = train_challenger(datasets, tuned_model_data)
-    # model_promotion(datasets, challenger_data)
+    model_promotion(datasets, challenger_data)
     
 prediction_pipeline = sales_train_pipeline()
