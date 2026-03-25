@@ -98,16 +98,16 @@ class DailySalesDataTransformation(DataTransformationTemplate):
             pd.DataFrame: DataFrame enriched with log returns, rolling volatility, and Z-scores.
         """
         # Calendar features
-        df["day_of_week"] = df["datetime"].dt.dayofweek
-        df["month"] = df["datetime"].dt.month
-        df["is_weekend"] = df["day_of_week"].isin([5, 6]).astype(int)
+        df["day_of_week"] = df["datetime"].dt.dayofweek.astype("int64")
+        df["month"] = df["datetime"].dt.month.astype("int64")
+        df["is_weekend"] = df["day_of_week"].isin([5, 6]).astype("int64")
 
         # Lag features
-        df["lag_1"] = df["total_sales"].shift(1)
-        df["lag_7"] = df["total_sales"].shift(7)
+        df["lag_1"] = df["total_sales"].shift(1).astype("float64")
+        df["lag_7"] = df["total_sales"].shift(7).astype("float64")
 
         # Rolling window features
-        df["rolling_mean_7"] = df["total_sales"].rolling(7).mean()
+        df["rolling_mean_7"] = df["total_sales"].rolling(7).mean().astype("float64")
 
         return df
 
