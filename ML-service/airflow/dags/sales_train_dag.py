@@ -1,16 +1,13 @@
 from datetime import datetime, timedelta
 import io
 from airflow.sdk import dag, task 
-from airflow.providers.amazon.aws.sensors.s3 import S3Hook, S3KeySensor
+from airflow.providers.amazon.aws.sensors.s3 import S3Hook
 from dotenv import load_dotenv
 from src.data_preprocessing import DailySalesDataPreProcessing 
-# from src.utility import SQLTableBuilder, TrainTestTableStrategy 
 from src.orchestrator import TrainingOrchestrator 
 from src.model_tuning import OptunaModelTuner 
 # from src.model_promotion import ModelPromotionManager 
-import psycopg2.extras as extras
 import pandas as pd
-from sqlalchemy import create_engine, text 
 
 load_dotenv()
 
@@ -198,8 +195,8 @@ def sales_train_pipeline():
 
     datasets = data_preprocessing()
     best_model_data = model_training(datasets)
-    # tuned_model_data = hyperparameter_tuning(datasets, best_model_data)
-    # challenger_data = train_challenger(datasets, tuned_model_data)
+    tuned_model_data = hyperparameter_tuning(datasets, best_model_data)
+    challenger_data = train_challenger(datasets, tuned_model_data)
     # model_promotion(datasets, challenger_data)
     
 prediction_pipeline = sales_train_pipeline()

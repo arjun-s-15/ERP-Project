@@ -94,6 +94,7 @@ services:
       # Server host/port
       MLFLOW_HOST: ${MLFLOW_HOST}
       MLFLOW_PORT: ${MLFLOW_PORT}
+      MLFLOW_SERVER_ALLOWED_HOSTS: "*"
     command:
       - /bin/bash
       - -c
@@ -118,7 +119,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 30
+    networks:
+      - default
+      - project-network
 
 networks:
   default:
     name: mlflow-network
+  project-network:
+    external: true
