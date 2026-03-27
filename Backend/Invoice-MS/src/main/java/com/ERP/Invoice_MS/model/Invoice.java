@@ -2,6 +2,9 @@ package com.ERP.Invoice_MS.model;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 
 public class Invoice {
@@ -13,6 +16,6 @@ public class Invoice {
     private double cgst;
     private double sgst;
     private double total;
-
+    private List<InvoiceItem> items = new ArrayList<>();
 
 }

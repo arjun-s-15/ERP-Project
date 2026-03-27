@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, serif;
+            background: #f4f4f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 48px 16px;
+            color: #1a1a2e;
+        }
+
+        .card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 48px;
+            border-top: 5px solid #c0392b;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            margin-bottom: 32px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 22px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #1a1a2e;
+        }
+
+        .card-header p {
+            font-size: 11px;
+            color: #aaa;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* ── FIELD GROUPS ── */
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .field-group input {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-family: Georgia, serif;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            color: #1a1a2e;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .field-group input:focus {
+            border-color: #c0392b;
+            background: #fff;
+        }
+
+        .two-col {
+            display: flex;
+            gap: 16px;
+        }
+
+        .two-col .field-group {
+            flex: 1;
+        }
+
+        /* ── ITEMS TABLE ── */
+        .section-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #888;
+            margin-bottom: 10px;
+            margin-top: 28px;
+        }
+
+        table#itemsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+
+        table#itemsTable thead tr {
+            background-color: #1a1a2e;
+            color: #fff;
+        }
+
+        table#itemsTable thead th {
+            padding: 9px 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: normal;
+            text-align: left;
+        }
+
+        table#itemsTable tbody tr {
+            border-bottom: 1px solid #eee;
+        }
+
+        table#itemsTable tbody td {
+            padding: 6px 8px;
+        }
+
+        table#itemsTable tbody td input {
+            width: 100%;
+            padding: 7px 10px;
+            font-size: 13px;
+            font-family: Georgia, serif;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            color: #1a1a2e;
+            outline: none;
+        }
+
+        table#itemsTable tbody td input:focus {
+            border-color: #c0392b;
+            background: #fff;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-add {
+            background: none;
+            border: 1px dashed #c0392b;
+            color: #c0392b;
+            padding: 8px 18px;
+            font-size: 12px;
+            font-family: Georgia, serif;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-bottom: 28px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #c0392b;
+            color: #fff;
+        }
+
+        .btn-remove {
+            background: none;
+            border: 1px solid #ddd;
+            color: #aaa;
+            padding: 6px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .btn-remove:hover {
+            border-color: #c0392b;
+            color: #c0392b;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: #1a1a2e;
+            color: #ffffff;
+            border: none;
+            font-size: 13px;
+            font-family: Georgia, serif;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: #c0392b;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 24px 0;
+        }
+    </style>
+
+    <script>
+        function addRow() {
+            let table = document.getElementById("itemsTable");
+            let rowCount = table.rows.length - 1; // subtract header row
+            let row = table.insertRow();
+
+            row.innerHTML = `
+                <td><input type="text" name="items[${rowCount}].name" placeholder="Item name"/></td>
+                <td><input type="number" name="items[${rowCount}].quantity" placeholder="0" min="1"/></td>
+                <td><input type="number" name="items[${rowCount}].price" placeholder="0.00" step="0.01" min="0"/></td>
+                <td><button type="button" class="btn-remove" onclick="removeRow(this)">✕</button></td>
+            `;
+        }
+
+        function removeRow(btn) {
+            btn.parentNode.parentNode.remove();
+        }
+    </script>
+</head>
+<body>
+
+<div class="card">
+
+    <div class="card-header">
+        <h2>New Invoice</h2>
+        <p>ABC Fintech Pvt Ltd &nbsp;|&nbsp; GST Tax Invoice</p>
+    </div>
+
+    <form th:action="@{/invoice/generate}" method="post">
+
+        <div class="two-col">
+            <div class="field-group">
+                <label>Invoice Number</label>
+                <input type="text" name="invoiceNumber" placeholder="INV-202506-0001"/>
+            </div>
+            <div class="field-group">
+                <label>Customer Name</label>
+                <input type="text" name="customerName" placeholder="Acme Corp"/>
+            </div>
+        </div>
+
+        <div class="section-title">Line Items</div>
+
+        <table id="itemsTable">
+            <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price (Rs.)</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- rows added dynamically -->
+            </tbody>
+        </table>
+
+        <button type="button" class="btn-add" onclick="addRow()">+ Add Item</button>
+
+        <hr class="divider"/>
+
+        <div class="two-col">
+            <div class="field-group">
+                <label>CGST (Rs.)</label>
+                <input type="number" name="cgst" placeholder="0.00" step="0.01" min="0"/>
+            </div>
+            <div class="field-group">
+                <label>SGST (Rs.)</label>
+                <input type="number" name="sgst" placeholder="0.00" step="0.01" min="0"/>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Generate PDF</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>
