@@ -3,299 +3,135 @@
 <head>
     <meta charset="UTF-8"/>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Georgia, serif;
-            font-size: 13px;
-            color: #1a1a2e;
-            background: #ffffff;
-            padding: 40px;
-        }
-
-        /* ── HEADER ── */
-        .header {
-            display: table;
-            width: 100%;
-            border-bottom: 3px solid #1a1a2e;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-        }
-
-        .header-left {
-            display: table-cell;
-            vertical-align: middle;
-        }
-
-        .header-right {
-            display: table-cell;
-            text-align: right;
-            vertical-align: middle;
-        }
-
-        .company-name {
-            font-size: 22px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #1a1a2e;
-        }
-
-        .company-meta {
-            font-size: 11px;
-            color: #555;
-            margin-top: 4px;
-        }
-
-        .invoice-title {
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 4px;
-            color: #c0392b;
-            text-transform: uppercase;
-        }
-
-        .invoice-subtitle {
-            font-size: 11px;
-            color: #888;
-            letter-spacing: 1px;
-            margin-top: 2px;
-        }
-
-        /* ── INVOICE META ── */
-        .meta-section {
-            display: table;
-            width: 100%;
-            margin-bottom: 28px;
-        }
-
-        .meta-left, .meta-right {
-            display: table-cell;
-            width: 50%;
-            vertical-align: top;
-        }
-
-        .meta-right {
-            text-align: right;
-        }
-
-        .meta-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            margin-bottom: 2px;
-        }
-
-        .meta-value {
-            font-size: 14px;
-            font-weight: bold;
-            color: #1a1a2e;
-            margin-bottom: 12px;
-        }
-
-        /* ── TABLE ── */
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 24px;
-        }
-
-        .items-table thead tr {
-            background-color: #1a1a2e;
-            color: #ffffff;
-        }
-
-        .items-table thead th {
-            padding: 10px 12px;
-            text-align: left;
-            font-size: 11px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            font-weight: normal;
-        }
-
-        .items-table thead th.right {
-            text-align: right;
-        }
-
-        .items-table tbody tr {
-            border-bottom: 1px solid #e8e8e8;
-        }
-
-        .items-table tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .items-table tbody td {
-            padding: 10px 12px;
-            font-size: 13px;
-            color: #333;
-        }
-
-        .items-table tbody td.right {
-            text-align: right;
-        }
-
-        .items-table .empty-row td {
-            text-align: center;
-            color: #aaa;
-            font-style: italic;
-            padding: 20px;
-        }
-
-        /* ── TOTALS ── */
-        .totals-section {
-            display: table;
-            width: 100%;
-            margin-bottom: 32px;
-        }
-
-        .totals-spacer {
-            display: table-cell;
-            width: 60%;
-        }
-
-        .totals-box {
-            display: table-cell;
-            width: 40%;
-            vertical-align: top;
-        }
-
-        .totals-row {
-            display: table;
-            width: 100%;
-            padding: 6px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .totals-row-label {
-            display: table-cell;
-            font-size: 12px;
-            color: #555;
-        }
-
-        .totals-row-value {
-            display: table-cell;
-            text-align: right;
-            font-size: 12px;
-            color: #333;
-        }
-
-        .totals-row.grand-total {
-            background-color: #1a1a2e;
-            padding: 10px 8px;
-            margin-top: 4px;
-            border-bottom: none;
-        }
-
-        .totals-row.grand-total .totals-row-label {
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .totals-row.grand-total .totals-row-value {
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: bold;
-        }
-
-        /* ── FOOTER ── */
-        .footer {
-            border-top: 1px solid #ddd;
-            padding-top: 12px;
-            font-size: 10px;
-            color: #aaa;
-            text-align: center;
-            letter-spacing: 1px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Georgia, serif; font-size: 13px; color: #1a1a2e; background: #ffffff; padding: 40px; }
+        .header { display: table; width: 100%; border-bottom: 3px solid #1a1a2e; padding-bottom: 16px; margin-bottom: 24px; }
+        .header-left { display: table-cell; vertical-align: middle; }
+        .header-right { display: table-cell; text-align: right; vertical-align: middle; }
+        .company-name { font-size: 22px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #1a1a2e; }
+        .company-meta { font-size: 11px; color: #555; margin-top: 4px; }
+        .invoice-title { font-size: 28px; font-weight: bold; letter-spacing: 4px; color: #c0392b; text-transform: uppercase; }
+        .invoice-subtitle { font-size: 11px; color: #888; letter-spacing: 1px; margin-top: 2px; }
+        .meta-section { display: table; width: 100%; margin-bottom: 28px; }
+        .meta-left, .meta-right { display: table-cell; width: 50%; vertical-align: top; }
+        .meta-right { text-align: right; }
+        .meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 2px; }
+        .meta-value { font-size: 14px; font-weight: bold; color: #1a1a2e; margin-bottom: 12px; }
+        .meta-small { font-size: 12px; color: #555; margin-bottom: 8px; }
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        .items-table thead tr { background-color: #1a1a2e; color: #ffffff; }
+        .items-table thead th { padding: 10px 12px; text-align: left; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: normal; }
+        .items-table thead th.right { text-align: right; }
+        .items-table tbody tr { border-bottom: 1px solid #e8e8e8; }
+        .items-table tbody tr:nth-child(even) { background-color: #f9f9f9; }
+        .items-table tbody td { padding: 10px 12px; font-size: 13px; color: #333; }
+        .items-table tbody td.right { text-align: right; }
+        .items-table .empty-row td { text-align: center; color: #aaa; font-style: italic; padding: 20px; }
+        .totals-section { display: table; width: 100%; margin-bottom: 32px; }
+        .totals-spacer { display: table-cell; width: 60%; }
+        .totals-box { display: table-cell; width: 40%; vertical-align: top; }
+        .totals-row { display: table; width: 100%; padding: 6px 0; border-bottom: 1px solid #eee; }
+        .totals-row-label { display: table-cell; font-size: 12px; color: #555; }
+        .totals-row-value { display: table-cell; text-align: right; font-size: 12px; color: #333; }
+        .totals-row.grand-total { background-color: #1a1a2e; padding: 10px 8px; margin-top: 4px; border-bottom: none; }
+        .totals-row.grand-total .totals-row-label { color: #ffffff; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+        .totals-row.grand-total .totals-row-value { color: #ffffff; font-size: 15px; font-weight: bold; }
+        .footer { border-top: 1px solid #ddd; padding-top: 12px; font-size: 10px; color: #aaa; text-align: center; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
-    <div class="header">
-        <div class="header-left">
-            <div class="company-name">ABC Fintech Pvt Ltd</div>
-            <div class="company-meta">GSTIN: 07ABCDE1234F1Z5 | New Delhi, India</div>
-
-        </div>
-        <div class="header-right">
-            <div class="invoice-title">Invoice</div>
-            <div class="invoice-subtitle">GST TAX INVOICE</div>
-        </div>
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        <div class="company-name">ABC Fintech Pvt Ltd</div>
+        <div class="company-meta">GSTIN: 07ABCDE1234F1Z5 | New Delhi, India</div>
     </div>
-
-    <!-- META -->
-    <div class="meta-section">
-        <div class="meta-left">
-            <div class="meta-label">Billed To</div>
-            <div class="meta-value" th:text="${invoice.customerName}">Customer Name</div>
-        </div>
-        <div class="meta-right">
-            <div class="meta-label">Invoice Number</div>
-            <div class="meta-value" th:text="${invoice.invoiceNumber}">INV-000000</div>
-        </div>
+    <div class="header-right">
+        <div class="invoice-title">Invoice</div>
+        <div class="invoice-subtitle">GST TAX INVOICE</div>
     </div>
+</div>
 
-    <!-- ITEMS TABLE -->
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th class="right">Qty</th>
-                <th class="right">Unit Price</th>
-                <th class="right">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="empty-row" th:if="${invoice.items == null or #lists.isEmpty(invoice.items)}">
-                <td colspan="4">No items available</td>
-            </tr>
-            <tr th:each="item : ${invoice.items ?: {}}">
-                <td th:text="${item.name}">Item Name</td>
-                <td class="right" th:text="${item.quantity}">0</td>
-                <td class="right" th:text="'Rs. ' + ${#numbers.formatDecimal(item.price, 1, 2)}">Rs. 0.00</td>
-                <td class="right" th:text="'Rs. ' + ${#numbers.formatDecimal(item.quantity * item.price, 1, 2)}">Rs. 0.00</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- TOTALS -->
-    <div class="totals-section">
-        <div class="totals-spacer"></div>
-        <div class="totals-box">
-
-            <div class="totals-row">
-                <div class="totals-row-label">CGST</div>
-                <div class="totals-row-value" th:text="'Rs. ' + ${#numbers.formatDecimal(invoice.cgst, 1, 2)}">Rs. 0.00</div>
-            </div>
-
-            <div class="totals-row">
-                <div class="totals-row-label">SGST</div>
-                <div class="totals-row-value" th:text="'Rs. ' + ${#numbers.formatDecimal(invoice.sgst, 1, 2)}">Rs. 0.00</div>
-            </div>
-
-            <div class="totals-row grand-total">
-                <div class="totals-row-label">Total</div>
-                <div class="totals-row-value" th:text="'Rs. ' + ${#numbers.formatDecimal(invoice.total, 1, 2)}">Rs. 0.00</div>
-            </div>
-
-        </div>
+<!-- META -->
+<div class="meta-section">
+    <div class="meta-left">
+        <div class="meta-label">Billed To</div>
+        <div class="meta-value"  th:text="${invoice.customer?.name}">Customer Name</div>
+        <div class="meta-small" th:text="${invoice.customer?.email}">email</div>
+        <div class="meta-small" th:text="${invoice.customer?.phone}">phone</div>
+        <div class="meta-small" th:text="${invoice.customer?.gstin}">GSTIN</div>
+        <div class="meta-small" th:text="${invoice.customer?.address}">Address</div>
     </div>
+    <div class="meta-right">
+        <div class="meta-label">Invoice Number</div>
+        <div class="meta-value"  th:text="${invoice.invoiceNumber}">INV-000000</div>
+        <div class="meta-label">Issue Date</div>
+        <div class="meta-small" th:text="${invoice.issueDate}">-</div>
+        <div class="meta-label">Due Date</div>
+        <div class="meta-small" th:text="${invoice.dueDate}">-</div>
+    </div>
+</div>
 
-    <!-- FOOTER -->
-        <div class="footer">
-            Thank you for your business | This is a computer-generated invoice
+<!-- ITEMS TABLE -->
+<table class="items-table">
+    <thead>
+    <tr>
+        <th>Item</th>
+        <th>Description</th>
+        <th class="right">Qty</th>
+        <th class="right">Unit Price</th>
+        <th class="right">Tax Rate</th>
+        <th class="right">Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="empty-row" th:if="${invoice.items == null or #lists.isEmpty(invoice.items)}">
+        <td colspan="6">No items available</td>
+    </tr>
+    <tr th:each="item : ${invoice.items}">
+        <td th:text="${item.itemName}">Item Name</td>
+        <td th:text="${item.description}">-</td>
+        <td class="right" th:text="${item.quantity}">0</td>
+        <td class="right" th:text="'Rs. ' + ${#numbers.formatDecimal(item.unitPrice, 1, 2)}">Rs. 0.00</td>
+        <td class="right" th:text="${item.taxRate} + '%'">0%</td>
+        <td class="right" th:text="'Rs. ' + ${#numbers.formatDecimal(item.totalPrice, 1, 2)}">Rs. 0.00</td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- TOTALS -->
+<div class="totals-section">
+    <div class="totals-spacer"></div>
+    <div class="totals-box">
+
+        <div class="totals-row">
+            <div class="totals-row-label">Subtotal</div>
+            <div class="totals-row-value" th:text="'Rs. ' + ${#numbers.formatDecimal(invoice.subtotal, 1, 2)}">Rs. 0.00</div>
         </div>
 
+        <div class="totals-row">
+            <div class="totals-row-label">Tax</div>
+            <div class="totals-row-value" th:text="'Rs. ' + ${#numbers.formatDecimal(invoice.taxAmount, 1, 2)}">Rs. 0.00</div>
+        </div>
+
+        <div class="totals-row">
+            <div class="totals-row-label">Discount</div>
+            <div class="totals-row-value" th:text="'- Rs. ' + ${#numbers.formatDecimal(invoice.discount ?: 0, 1, 2)}">Rs. 0.00</div>
+        </div>
+
+        <div class="totals-row grand-total">
+            <div class="totals-row-label">Total</div>
+            <div class="totals-row-value" th:text="'Rs. ' + ${#numbers.formatDecimal(invoice.totalAmount, 1, 2)}">Rs. 0.00</div>
+        </div>
+
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    Thank you for your business &#160;|&#160; This is a computer-generated invoice
+</div>
 
 </body>
 </html>

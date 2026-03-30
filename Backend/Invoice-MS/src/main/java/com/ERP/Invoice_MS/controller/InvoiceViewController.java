@@ -1,6 +1,6 @@
 package com.ERP.Invoice_MS.controller;
 
-import com.ERP.Invoice_MS.model.Invoice;
+import com.ERP.Invoice_MS.entity.InvoiceEntity;
 import com.ERP.Invoice_MS.service.InvoiceService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,23 +24,23 @@ public class InvoiceViewController {
 
     @GetMapping("/form")
     public String showForm(Model model) {
-        model.addAttribute("invoice", new Invoice());
+        model.addAttribute("invoice", new InvoiceEntity());
         return "invoice-form";
     }
 
     @PostMapping("/generate")
-    public ResponseEntity<byte[]> generateInvoice(@ModelAttribute Invoice invoice) throws Exception {
+    public ResponseEntity<byte[]> generateInvoice(@ModelAttribute InvoiceEntity invoiceEntity) throws Exception {
 
-        // Step 1: Generate PDF bytes
-        byte[] pdf = invoiceService.generateInvoicePdf(invoice);
-
-        // Step 2: Upload to S3 and get presigned URL (logged in console)
-        String presignedUrl = invoiceService.generateInvoiceAndUpload(invoice);
+        // Step 1: Save to DB, calculate totals, upload to S3 (all handled in service)
+        String presignedUrl = invoiceService.createInvoiceAndUpload(invoiceEntity);
         System.out.println("Invoice uploaded. Presigned URL: " + presignedUrl);
 
+        // Step 2: Generate PDF from the fully populated entity (number + totals already set)
+        byte[] pdf = invoiceService.generateInvoicePdf(invoiceEntity);
+
         // Step 3: Return PDF as download
-        String invoiceNumber = invoice.getInvoiceNumber() != null
-                ? invoice.getInvoiceNumber()
+        String invoiceNumber = invoiceEntity.getInvoiceNumber() != null
+                ? invoiceEntity.getInvoiceNumber()
                 : "draft";
 
         return ResponseEntity.ok()
