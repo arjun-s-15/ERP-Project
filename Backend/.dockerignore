@@ -1,0 +1,41 @@
+# 🔐 Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# 🧾 Logs
+*.log
+logs/
+
+# 🧪 Test & reports
+target/test-classes/
+surefire-reports/
+*.coverage
+
+# 🏗️ Build output (optional depending on your Dockerfile)
+target/
+build/
+
+# 📦 Dependency caches
+.mvn/
+.mvn/wrapper/maven-wrapper.jar
+
+# 🧠 IDE files
+.idea/
+.vscode/
+*.iml
+
+# 🐙 Git
+.git
+.gitignore
+
+# 💻 OS files
+.DS_Store
+Thumbs.db
+
+# 🐳 Docker (optional)
+docker-compose.yml
+
+# 📄 Docs
+README.md
