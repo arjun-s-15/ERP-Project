@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP – File Upload</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="erp.css">
+</head>
+<body class="with-sidebar">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">ERP</div>
+  <nav>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item active">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg>
+      Sales
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      Invoice
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      Reports
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>
+      Settings
+    </div>
+  </nav>
+</aside>
+
+<main class="main">
+  <h2 style="font-size:20px;font-weight:700;margin-bottom:32px;">File Upload</h2>
+
+  <label class="upload-zone" for="fileInput">
+    <svg class="upload-icon" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+      <path d="M12 16V4m0 0L8 8m4-4l4 4"/>
+      <path d="M20 16.5A3.5 3.5 0 0116.5 20H7.5A3.5 3.5 0 014 16.5v-1"/>
+    </svg>
+    <div class="upload-text">Drag &amp; drop your file here or <a href="#">Browse</a></div>
+    <button class="btn-upload" onclick="event.preventDefault(); document.getElementById('fileInput').click()">Upload</button>
+    <div class="upload-hint">Supported Formats: CSV, XLSX</div>
+  </label>
+  <input type="file" id="fileInput" accept=".csv,.xlsx" style="display:none">
+</main>
+
+</body>
+</html>

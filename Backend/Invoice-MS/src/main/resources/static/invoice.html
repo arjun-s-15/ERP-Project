@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ERP – New Invoice</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="erp.css"/>
+  <style>
+    /* ── Page-specific overrides ── */
+    .invoice-form-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 32px 36px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      max-width: 860px;
+    }
+
+    .form-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin: 28px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .form-section-title:first-child { margin-top: 0; }
+
+    /* Column headers for line items */
+    .line-col-headers {
+      display: grid;
+      grid-template-columns: 2fr 2fr 70px 130px 110px 38px;
+      gap: 8px;
+      padding: 0 2px;
+      margin-bottom: 6px;
+    }
+    .line-col-header {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    /* Line item rows */
+    .item-row {
+      display: grid;
+      grid-template-columns: 2fr 2fr 70px 130px 110px 38px;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    .item-row input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color .18s, background .18s;
+    }
+    .item-row input:focus {
+      border-color: var(--blue);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+    }
+
+    /* Remove button */
+    .btn-remove {
+      width: 34px;
+      height: 34px;
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .18s, color .18s, background .18s;
+      flex-shrink: 0;
+    }
+    .btn-remove:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: #FEF2F2;
+    }
+
+    /* Add item button */
+    .btn-add-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 1.5px dashed var(--blue);
+      color: var(--blue);
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px 0 28px;
+      transition: background .18s, color .18s;
+    }
+    .btn-add-item:hover {
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    /* Totals */
+    .totals-box {
+      width: 300px;
+      margin-left: auto;
+      margin-top: 4px;
+      background: var(--bg);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .totals-row:last-child { border-bottom: none; }
+    .totals-row .label { font-weight: 500; }
+    .totals-row .value { font-weight: 600; color: var(--text); }
+    .totals-row.grand {
+      background: var(--blue);
+      color: var(--white);
+      padding: 13px 16px;
+      margin-top: 2px;
+      border-radius: 0 0 10px 10px;
+    }
+    .totals-row.grand .label { font-size: 13px; font-weight: 700; color: var(--white); letter-spacing: .5px; }
+    .totals-row.grand .value { font-size: 15px; font-weight: 700; color: var(--white); }
+
+    /* Submit */
+    .btn-generate {
+      width: 100%;
+      padding: 14px;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 28px;
+      transition: background .18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-generate:hover { background: var(--blue-dark); }
+
+    /* Auto badge */
+    .auto-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--blue);
+      background: var(--blue-light);
+      padding: 5px 12px;
+      border-radius: 20px;
+      letter-spacing: .4px;
+      margin-bottom: 20px;
+    }
+  </style>
+
+  <script>
+    let rowCount = 0;
+
+    function addRow() {
+      const container = document.getElementById('rows');
+      const div = document.createElement('div');
+      div.className = 'item-row';
+      div.dataset.index = rowCount;
+      div.innerHTML = `
+        <input type="text"   name="items[${rowCount}].itemName"    placeholder="e.g. Web design"  oninput="recalc()"/>
+        <input type="text"   name="items[${rowCount}].description" placeholder="Optional"/>
+        <input type="number" name="items[${rowCount}].quantity"    placeholder="1" min="1" value="1" oninput="recalc()"/>
+        <input type="number" name="items[${rowCount}].unitPrice"   placeholder="0.00" step="0.01" min="0" oninput="recalc()"/>
+        <input type="number" name="items[${rowCount}].taxRate"     placeholder="18" step="0.01" min="0" max="100" value="18" oninput="recalc()"/>
+        <button type="button" class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
+      `;
+      container.appendChild(div);
+      rowCount++;
+      recalc();
+    }
+
+    function removeRow(btn) {
+      btn.closest('.item-row').remove();
+      recalc();
+    }
+
+    function recalc() {
+      const rows = document.querySelectorAll('.item-row[data-index]');
+      let subtotal = 0, taxTotal = 0;
+      rows.forEach(row => {
+        const qty   = parseFloat(row.querySelector('[name$=".quantity"]')?.value)  || 0;
+        const price = parseFloat(row.querySelector('[name$=".unitPrice"]')?.value) || 0;
+        const tax   = parseFloat(row.querySelector('[name$=".taxRate"]')?.value)   || 0;
+        const itemTotal = qty * price;
+        subtotal += itemTotal;
+        taxTotal += itemTotal * tax / 100;
+      });
+      const discount = parseFloat(document.getElementById('discountInput')?.value) || 0;
+      const total = subtotal + taxTotal - discount;
+      document.getElementById('t-subtotal').textContent = 'Rs. ' + subtotal.toFixed(2);
+      document.getElementById('t-tax').textContent      = 'Rs. ' + taxTotal.toFixed(2);
+      document.getElementById('t-discount').textContent = 'Rs. ' + discount.toFixed(2);
+      document.getElementById('t-total').textContent    = 'Rs. ' + total.toFixed(2);
+    }
+
+    window.onload = () => addRow();
+  </script>
+</head>
+<body class="with-sidebar">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">ERP</div>
+  <nav>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg>
+      Sales
+    </div>
+    <div class="nav-item active">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      Invoice
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      Reports
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </div>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="topbar">
+    <h1>New Invoice</h1>
+    <div class="topbar-right">
+      <button class="icon-btn">🔔</button>
+      <button class="icon-btn">▶</button>
+      <div class="avatar-sm">JD</div>
+      <span class="user-name">John Doe</span>
+    </div>
+  </div>
+
+  <div class="invoice-form-card">
+
+    <div class="auto-badge">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>
+      Invoice number is auto-generated
+    </div>
+
+    <form th:action="@{/invoice/generate}" method="post">
+
+      <!-- Customer Details -->
+      <div class="form-section-title">Customer Details</div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Customer Name</label>
+          <input type="text" name="customer.name" placeholder="Acme Corp"/>
+        </div>
+        <div class="field">
+          <label>Customer Email</label>
+          <input type="email" name="customer.email" placeholder="billing@acme.com"/>
+        </div>
+        <div class="field">
+          <label>Customer Phone</label>
+          <input type="text" name="customer.phone" placeholder="+91 98765 43210"/>
+        </div>
+        <div class="field">
+          <label>GSTIN</label>
+          <input type="text" name="customer.gstin" placeholder="07ABCDE1234F1Z5"/>
+        </div>
+        <div class="field span2">
+          <label>Customer Address</label>
+          <input type="text" name="customer.address" placeholder="123, MG Road, New Delhi"/>
+        </div>
+      </div>
+
+      <!-- Invoice Details -->
+      <div class="form-section-title">Invoice Details</div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Issue Date</label>
+          <input type="date" name="issueDate"/>
+        </div>
+        <div class="field">
+          <label>Due Date</label>
+          <input type="date" name="dueDate"/>
+        </div>
+        <div class="field">
+          <label>Discount (Rs.)</label>
+          <input type="number" id="discountInput" name="discount" placeholder="0.00" step="0.01" min="0" oninput="recalc()"/>
+        </div>
+        <div class="field">
+          <label>Notes</label>
+          <input type="text" name="notes" placeholder="Payment due within 30 days"/>
+        </div>
+      </div>
+
+      <!-- Line Items -->
+      <div class="form-section-title">Line Items</div>
+
+      <div class="line-col-headers">
+        <div class="line-col-header">Item Name</div>
+        <div class="line-col-header">Description</div>
+        <div class="line-col-header">Qty</div>
+        <div class="line-col-header">Unit Price</div>
+        <div class="line-col-header">Tax Rate %</div>
+        <div></div>
+      </div>
+
+      <div id="rows"></div>
+
+      <button type="button" class="btn-add-item" onclick="addRow()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Item
+      </button>
+
+      <!-- Live Totals -->
+      <div class="totals-box">
+        <div class="totals-row"><span class="label">Subtotal</span><span class="value" id="t-subtotal">Rs. 0.00</span></div>
+        <div class="totals-row"><span class="label">Tax</span><span class="value" id="t-tax">Rs. 0.00</span></div>
+        <div class="totals-row"><span class="label">Discount</span><span class="value" id="t-discount">Rs. 0.00</span></div>
+        <div class="totals-row grand"><span class="label">Total</span><span class="value" id="t-total">Rs. 0.00</span></div>
+      </div>
+
+      <button type="submit" class="btn-generate">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+        Generate Invoice PDF
+      </button>
+
+    </form>
+  </div>
+</main>
+
+</body>
+</html>

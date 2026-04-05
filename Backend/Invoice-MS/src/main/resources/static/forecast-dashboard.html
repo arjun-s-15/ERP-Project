@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP – Forecast Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="erp.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="with-sidebar">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">ERP</div>
+  <nav>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Customer
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg>
+      Sales
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      Invoice
+    </div>
+    <div class="nav-item active">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      Reports
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </div>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <h1>Forecast Dashboard</h1>
+    <div class="topbar-right">
+      <button class="icon-btn">🔔</button>
+      <button class="icon-btn">▶</button>
+      <div class="avatar-sm">JD</div>
+    </div>
+  </div>
+
+  <div class="controls-bar">
+    <div class="ctrl-group">
+      <span>Date Range</span>
+      <select>
+        <option>Last 30 Days</option>
+        <option>Last 60 Days</option>
+        <option>Last 90 Days</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span>Forecast Model</span>
+      <select>
+        <option>ARIMA</option>
+        <option>Prophet</option>
+        <option>Linear</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">Revenue Forecast</div>
+    <canvas id="forecastChart" height="120"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Prediction Results</div>
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Predicted Revenue</th><th>Confidence</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Aug 22, 2023</td><td>$44,000</td><td><a href="#" class="confidence-link">5.18%</a></td></tr>
+        <tr><td>Aug 33, 2023</td><td>$44,000</td><td><a href="#" class="confidence-link">5.90%</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+new Chart(document.getElementById('forecastChart'), {
+  type: 'line',
+  data: {
+    labels: ['Aug 31','Aug 33','Aug 33','Aug 34','Aug 36','Aug 34','Aug 30'],
+    datasets: [
+      {
+        label: 'Actual',
+        data: [36,40,38,42,39,43,41],
+        borderColor: '#0EA5E9', backgroundColor: 'rgba(14,165,233,.07)',
+        borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#0EA5E9', fill: true, tension: 0.4
+      },
+      {
+        label: 'Forecast',
+        data: [null,null,null,null,39,44,46],
+        borderColor: '#22C55E', borderDash: [6,4],
+        borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#22C55E', fill: false, tension: 0.4
+      }
+    ]
+  },
+  options: {
+    plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'DM Sans', size: 12 } } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#94A3B8' } },
+      y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, color: '#94A3B8' }, beginAtZero: false }
+    }
+  }
+});
+</script>
+</body>
+</html>

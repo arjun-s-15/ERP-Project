@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP – Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="erp.css">
+</head>
+<body class="with-sidebar">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">ERP</div>
+  <nav>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg>
+      Sales
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      Invoice
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      Reports
+    </div>
+    <div class="nav-item active">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </div>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="topbar">
+    <h1>Settings</h1>
+    <div class="topbar-right">
+      <button class="icon-btn">🔔</button>
+      <button class="icon-btn">▶</button>
+      <div class="avatar-sm">JD</div>
+      <span class="user-name">John Doe</span>
+    </div>
+  </div>
+
+  <div class="settings-layout">
+
+    <!-- Left nav -->
+    <div class="settings-nav">
+      <div class="settings-nav-title">Account</div>
+      <div class="settings-tab active" onclick="switchTab(this,'profile')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        User Profile
+      </div>
+      <div class="settings-tab" onclick="switchTab(this,'security')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        Security
+      </div>
+      <div class="settings-tab" onclick="switchTab(this,'notifications')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Notifications
+      </div>
+      <div class="settings-divider"></div>
+      <div class="settings-nav-title">System</div>
+      <div class="settings-tab" onclick="switchTab(this,'preferences')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Preferences
+      </div>
+      <div class="settings-tab" onclick="switchTab(this,'danger')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Danger Zone
+      </div>
+    </div>
+
+    <!-- Content panels -->
+    <div class="content-area">
+
+      <!-- PROFILE -->
+      <div id="panel-profile">
+        <div class="card" style="padding:28px">
+          <div class="card-header">
+            <div>
+              <div class="card-title">User Profile</div>
+              <div class="card-subtitle">Update your personal information and photo</div>
+            </div>
+            <span class="role-badge">
+              <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a5 5 0 100 10A5 5 0 0012 2zm0 12c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z"/></svg>
+              Admin
+            </span>
+          </div>
+          <div class="avatar-section">
+            <div class="avatar-lg">
+              JD
+              <div class="avatar-overlay" onclick="document.getElementById('photoInput').click()">📷</div>
+            </div>
+            <div class="avatar-info">
+              <h3>John Doe</h3>
+              <p>john.doe@company.com</p>
+              <button class="btn-upload-photo" onclick="document.getElementById('photoInput').click()">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Photo
+              </button>
+              <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(event)">
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>First Name</label><input type="text" value="John"></div>
+            <div class="field"><label>Last Name</label><input type="text" value="Doe"></div>
+            <div class="field span2"><label>Email Address</label><input type="email" value="john.doe@company.com"></div>
+            <div class="field"><label>Phone Number</label><input type="tel" value="+1 (555) 000-0000"></div>
+            <div class="field"><label>Job Title</label><input type="text" value="ERP Administrator"></div>
+            <div class="field">
+              <label>Department</label>
+              <select><option selected>Finance</option><option>Sales</option><option>Operations</option><option>IT</option><option>HR</option></select>
+            </div>
+            <div class="field"><label>Location</label><input type="text" value="New York, USA"></div>
+            <div class="field span2">
+              <label>Bio <span class="label-hint">(optional)</span></label>
+              <textarea>Manages ERP operations and system configurations across the organization.</textarea>
+            </div>
+          </div>
+          <div class="form-footer">
+            <button class="btn-cancel">Discard</button>
+            <button class="btn-save" onclick="showToast('Profile saved successfully ✓')">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECURITY -->
+      <div id="panel-security" style="display:none">
+        <div class="card" style="padding:28px">
+          <div class="card-header">
+            <div><div class="card-title">Security</div><div class="card-subtitle">Manage your password and login settings</div></div>
+          </div>
+          <div class="form-grid">
+            <div class="field span2"><label>Current Password</label><input type="password" placeholder="Enter current password"></div>
+            <div class="field">
+              <label>New Password</label>
+              <input type="password" id="newPwd" placeholder="Min 8 characters" oninput="checkStrength(this.value)">
+              <div class="password-strength">
+                <div class="strength-bar" id="s1"></div><div class="strength-bar" id="s2"></div>
+                <div class="strength-bar" id="s3"></div><div class="strength-bar" id="s4"></div>
+              </div>
+              <div class="strength-label" id="strengthLabel">Enter a password</div>
+            </div>
+            <div class="field"><label>Confirm New Password</label><input type="password" placeholder="Repeat new password"></div>
+          </div>
+          <div class="form-footer">
+            <button class="btn-cancel">Cancel</button>
+            <button class="btn-save" onclick="showToast('Password updated ✓')">Update Password</button>
+          </div>
+        </div>
+        <div class="card" style="padding:28px;margin-top:20px">
+          <div class="card-header">
+            <div><div class="card-title">Two-Factor Authentication</div><div class="card-subtitle">Add an extra layer of security to your account</div></div>
+          </div>
+          <div class="toggle-list">
+            <div class="toggle-item">
+              <div class="toggle-info"><h4>Authenticator App</h4><p>Use Google Authenticator or Authy for 2FA codes</p></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-item">
+              <div class="toggle-info"><h4>SMS Verification</h4><p>Receive a code by text message on sign-in</p></div>
+              <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div id="panel-notifications" style="display:none">
+        <div class="card" style="padding:28px">
+          <div class="card-header">
+            <div><div class="card-title">Notification Preferences</div><div class="card-subtitle">Choose what alerts you receive and how</div></div>
+          </div>
+          <div class="toggle-list">
+            <div class="toggle-item"><div class="toggle-info"><h4>New Invoice</h4><p>Get notified when a new invoice is created</p></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div class="toggle-item"><div class="toggle-info"><h4>Payment Received</h4><p>Alert when a customer payment is confirmed</p></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div class="toggle-item"><div class="toggle-info"><h4>Overdue Invoice</h4><p>Reminder when an invoice passes its due date</p></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div class="toggle-item"><div class="toggle-info"><h4>Weekly Sales Report</h4><p>Receive a summary email every Monday morning</p></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+            <div class="toggle-item"><div class="toggle-info"><h4>System Maintenance</h4><p>Alerts about scheduled downtime or updates</p></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+          </div>
+          <div class="form-footer">
+            <button class="btn-cancel">Discard</button>
+            <button class="btn-save" onclick="showToast('Notification settings saved ✓')">Save Preferences</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREFERENCES -->
+      <div id="panel-preferences" style="display:none">
+        <div class="card" style="padding:28px">
+          <div class="card-header">
+            <div><div class="card-title">System Preferences</div><div class="card-subtitle">Customize your ERP experience</div></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Language</label><select><option>English (US)</option><option>English (UK)</option><option>Spanish</option><option>French</option></select></div>
+            <div class="field"><label>Timezone</label><select><option>UTC-05:00 Eastern Time</option><option>UTC-08:00 Pacific Time</option><option>UTC+00:00 GMT</option><option>UTC+05:30 India Standard</option></select></div>
+            <div class="field"><label>Date Format</label><select><option>MM/DD/YYYY</option><option>DD/MM/YYYY</option><option>YYYY-MM-DD</option></select></div>
+            <div class="field"><label>Currency</label><select><option>USD – US Dollar</option><option>EUR – Euro</option><option>GBP – British Pound</option><option>INR – Indian Rupee</option></select></div>
+          </div>
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+            <div class="toggle-list">
+              <div class="toggle-item"><div class="toggle-info"><h4>Compact Table View</h4><p>Show more rows with reduced row padding</p></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+              <div class="toggle-item"><div class="toggle-info"><h4>Auto-save Drafts</h4><p>Automatically save invoice drafts every 30 seconds</p></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            </div>
+          </div>
+          <div class="form-footer">
+            <button class="btn-cancel">Discard</button>
+            <button class="btn-save" onclick="showToast('Preferences saved ✓')">Save Preferences</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DANGER ZONE -->
+      <div id="panel-danger" style="display:none">
+        <div class="card danger-card" style="padding:28px">
+          <div class="card-header">
+            <div><div class="card-title">Danger Zone</div><div class="card-subtitle">These actions are irreversible — please proceed carefully</div></div>
+          </div>
+          <div class="toggle-list">
+            <div class="toggle-item"><div class="toggle-info"><h4>Deactivate Account</h4><p>Temporarily suspend your account access</p></div><button class="btn-danger">Deactivate</button></div>
+            <div class="toggle-item"><div class="toggle-info"><h4>Export All Data</h4><p>Download a full archive of your account data</p></div><button class="btn-danger">Export</button></div>
+            <div class="toggle-item"><div class="toggle-info"><h4>Delete Account</h4><p>Permanently remove your account and all associated data</p></div><button class="btn-danger" onclick="confirmDelete()">Delete Account</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast">✓ <span id="toastMsg"></span></div>
+
+<script>
+function switchTab(el, panel) {
+  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['profile','security','notifications','preferences','danger'].forEach(p => {
+    const el = document.getElementById('panel-'+p);
+    if (el) el.style.display = (p === panel) ? '' : 'none';
+  });
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+function previewPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const avatarEl = document.querySelector('.avatar-lg');
+    avatarEl.innerHTML = `<img src="${ev.target.result}" alt="avatar"><div class="avatar-overlay" onclick="document.getElementById('photoInput').click()">📷</div>`;
+    showToast('Photo updated ✓');
+  };
+  reader.readAsDataURL(file);
+}
+function checkStrength(val) {
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const colors = ['weak','weak','medium','strong'];
+  const labels = ['','Too weak','Medium strength','Strong','Very strong'];
+  ['s1','s2','s3','s4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'strength-bar' + (i < score ? ' filled ' + colors[score-1] : '');
+  });
+  document.getElementById('strengthLabel').textContent = val ? (labels[score] || 'Very strong') : 'Enter a password';
+}
+function confirmDelete() {
+  if (confirm('Are you sure you want to permanently delete your account? This cannot be undone.')) {
+    showToast('Account deletion requested');
+  }
+}
+</script>
+</body>
+</html>
