@@ -203,7 +203,7 @@ def store_train_pipeline():
         return tuned_results_all
     
     @task(multiple_outputs=True)
-    def train_challenger(datasets, tuned_model_data):
+    def train_challenger(datasets_output: dict, tuned_model_results: dict):
         """
         Trains a final 'challenger' model using the optimized hyperparameters.
 
@@ -216,25 +216,46 @@ def store_train_pipeline():
             dict: A dictionary containing the challenger model's path, 
                 performance metrics, and metadata.
         """
-        train_key = datasets["train_dataset"]
         s3 = S3Hook(aws_conn_id="aws_default")
+        location_map = datasets_output.get("location_metadata", {})
+        challenger_results_all = {}
 
-        file_obj = s3.get_key(train_key, bucket_name=BUCKET_NAME)
-        body = file_obj.get()["Body"].read()
-        buffer = io.BytesIO(body)  
-        del body
-        train_df = pd.read_parquet(buffer)
-        del buffer
-        train_df.columns = train_df.columns.str.strip()
+        for loc_id, tuned_data in tuned_model_results.items():
+            print(f"\n--- Training Challenger Model for Location: {loc_id} ---")
 
-        orchestrator = TrainingOrchestrator(train_df)
-        challenger_data = orchestrator.train_challenger(tuned_model_data)
-        
-        print(challenger_data)
-        return challenger_data
+            # 1. Setup metadata and paths
+            if loc_id not in location_map:
+                print(f"Skipping {loc_id}: No dataset path found.")
+                continue
+
+            train_key = location_map[loc_id]["train_path"]
+            model_name = f"store_{loc_id}_forecast_model"
+
+            # 2. Download location-specific training data
+            file_obj = s3.get_key(train_key, bucket_name=BUCKET_NAME)
+            body = file_obj.get()["Body"].read()
+            buffer = io.BytesIO(body)  
+            del body
+            train_df = pd.read_parquet(buffer)
+            del buffer
+            train_df.columns = train_df.columns.str.strip()
+
+            # 3. Initialize Orchestrator with the Dynamic Model Name
+            # This ensures MLflow registers to the correct store-specific entry
+            orchestrator = TrainingOrchestrator(df=train_df, registered_model_name=model_name)
+
+            # 4. Train and register the model
+            # This calls the method that logs to MLflow and tags as 'challenger'
+            challenger_data = orchestrator.train_challenger(tuned_data)
+
+            # 5. Store result
+            challenger_results_all[loc_id] = challenger_data
+            print(f"Successfully registered {model_name} version {challenger_data.get('model_version')}")
+
+        return challenger_results_all
     
     @task 
-    def model_promotion(datasets, challenger_data):
+    def model_promotion(datasets_output: dict, challenger_results: dict):
         """
         Evaluates the challenger model against the current champion and promotes if superior.
 
@@ -245,26 +266,54 @@ def store_train_pipeline():
         Returns:
             None: Updates the model registry or production alias via ModelPromotionManager.
         """
-        test_key = datasets["test_dataset"]
         s3 = S3Hook(aws_conn_id="aws_default")
+        location_map = datasets_output.get("location_metadata", {})
+        promotion_report = {}
 
-        file_obj = s3.get_key(test_key, bucket_name=BUCKET_NAME)
-        body = file_obj.get()["Body"].read()
-        buffer = io.BytesIO(body)  
-        del body
-        test_df = pd.read_parquet(buffer)
-        del buffer
-        test_df.columns = test_df.columns.str.strip()
+        for loc_id, challenger_data in challenger_results.items():
+            print(f"\n--- Model Promotion Evaluation for Location: {loc_id} ---")
+
+            # 1. Get the correct test dataset path for this location
+            if loc_id not in location_map:
+                print(f"Skipping {loc_id}: No test dataset path found.")
+                continue
+
+            test_key = location_map[loc_id]["test_path"]
+            # Derive the source name from the key (e.g., "store_1_test")
+            # Removes 'data/' prefix and '.parquet' suffix
+            derived_source_name = test_key.split('/')[-1].replace('.parquet', '')
+
+            # 2. Download location-specific test data
+            file_obj = s3.get_key(test_key, bucket_name=BUCKET_NAME)
+            body = file_obj.get()["Body"].read()
+            buffer = io.BytesIO(body)  
+            del body
+            test_df = pd.read_parquet(buffer)
+            del buffer
+            test_df.columns = test_df.columns.str.strip()
+
+            # 3. Initialize the Manager with the specific model name
+            # e.g., 'store_1_forecast_model'
+            model_name = challenger_data["name"]
+
+            print(f"Evaluating Challenger (Run ID: {challenger_data['run_id']}) "
+                  f"for Model: {model_name}")
+            
+            manager = ModelPromotionManager(model_name=model_name, test_df=test_df, dataset_source=derived_source_name)
+
+            # 4. Execute promotion logic
+            result = manager.promote_if_better()
+
+            promotion_report[loc_id] = result
+            print(f"Result for Location {loc_id}: {result}")
         
-        manager = ModelPromotionManager(model_name=challenger_data["name"], test_df=test_df)
-        result = manager.promote_if_better()
-        print(result)
+        return promotion_report
 
 
     location_datasets = data_preprocessing()
     all_best_models = model_training(location_datasets)
-    tuned_model_data = hyperparameter_tuning(location_datasets, all_best_models)
-    # challenger_data = train_challenger(datasets, tuned_model_data)
-    # model_promotion(datasets, challenger_data)
+    tuned_model_results = hyperparameter_tuning(location_datasets, all_best_models)
+    challenger_results_all = train_challenger(location_datasets, tuned_model_results)
+    promotion_report = model_promotion(location_datasets, challenger_results_all)
     
 training_pipeline = store_train_pipeline()
