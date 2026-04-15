@@ -9,6 +9,7 @@ import mlflow.pyfunc
 from mlflow.tracking import MlflowClient
 
 from utils import get_predictors
+from analytics import router as analytics_router
 
 model = None
 model_metadata = {
@@ -70,6 +71,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(analytics_router)
 
 class PredictionInput(BaseModel):
     """
