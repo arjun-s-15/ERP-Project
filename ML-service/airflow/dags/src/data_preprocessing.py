@@ -82,19 +82,64 @@ class DailySalesDataPreProcessing(DataPreProcessingTemplate):
         return train_df, test_df
     
 
+class StoreSalesDataPreProcessing(DataPreProcessingTemplate):
+    def derive_target(self, df: pd.DataFrame):
+        df = df.rename(columns={"quantity": "total_sales"})
+        df = df.sort_values(by="datetime")
+        df["target"] = df["total_sales"].shift(-1)
+        df = df.dropna().reset_index(drop=True)
+        df = df.drop(columns=["location_id"])
+        return df
+    
+    def split_dataset(self, df: pd.DataFrame):
+        split_idx = int(len(df) * 0.8)
+        test_df = df.iloc[split_idx:]
+        train_df = df.iloc[:split_idx]
+
+        return train_df, test_df
+
 if __name__ == "__main__":
+   # --- 1. Processing Daily Total Sales (Global) ---
     df = pd.read_parquet("../../../datasets/daily_total_sales.parquet")
-    print("Input dataset: ")
-    print(df.head())
-    print(df.info())
+    print("--- GLOBAL DAILY SALES ---")
+    
+    processor_daily = DailySalesDataPreProcessing(df)
+    train_df_daily, test_df_daily = processor_daily.preprocess_data()
+    
+    print(f"Train Shape: {train_df_daily.shape}")
+    print(f"Test Shape: {test_df_daily.shape}")
+    print("-" * 30)
 
-    processor = DailySalesDataPreProcessing(df)
-    train_df, test_df = processor.preprocess_data()
 
-    print("Train dataset: ")
-    print(train_df.head())
-    print(train_df.shape)
+    # --- 2. Processing Store Sales Forecast (Per Location) ---
+    store_df = pd.read_parquet("../../../datasets/store_sales_forecast.parquet")
+    locations = store_df['location_id'].unique()
 
-    print("Test datset: ")
-    print(test_df.head())
-    print(test_df.shape)
+    print(f"--- PER-LOCATION PREPROCESSING ({len(locations)} Locations Found) ---")
+
+    for loc_id in locations:
+        print(f"\n{'='*15} LOCATION: {loc_id} {'='*15}")
+
+        # Isolate location data
+        loc_subset = store_df[store_df['location_id'] == loc_id].copy()
+
+        # Initialize processor for this specific location
+        processor = StoreSalesDataPreProcessing(loc_subset)
+        loc_train, loc_test = processor.preprocess_data()
+
+        # --- TRAIN DIAGNOSTICS ---
+        print(f"\n[TRAIN DATA - {loc_id}]")
+        print(f"Shape: {loc_train.shape}")
+        print("Head:")
+        print(loc_train.head(3))
+        print(loc_train.info())
+
+        # --- TEST DIAGNOSTICS ---
+        print(f"\n[TEST DATA - {loc_id}]")
+        print(f"Shape: {loc_test.shape}")
+        print("Head:")
+        print(loc_test.head(3))
+        print(loc_test.info())
+
+    print(f"\n{'*'*40}")
+    print(f"Finished processing Location {loc_id}")
