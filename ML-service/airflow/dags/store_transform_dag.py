@@ -9,7 +9,7 @@ from datetime import datetime
 import pandas as pd
 import io
 
-from src.data_transformation import DailySalesDataTransformation
+from src.data_transformation import StoreSalesAnalyticsDataTransformation, StoreSalesForecastDataTransformation
 
 
 BUCKET_NAME = "insighto-s3-bucket"
@@ -21,7 +21,7 @@ TRANSFORMED_TABLE = "store_transformed"
 
 
 with DAG(
-    dag_id="sales_transform_dag",
+    dag_id="store_transform_dag",
     start_date=datetime(2024, 1, 1),
     tags=["elt", "sales"],
 ) as dag:
@@ -77,24 +77,37 @@ with DAG(
         del buffer
         df.columns = df.columns.str.strip()
 
-        # Apply transformation for Daily Sales
-        transformer = DailySalesDataTransformation(df)
-        transformed_df = transformer.apply_transformation()
+        # 2. Define Transformations and Output Paths
+        transformations = [
+            {
+                "class": StoreSalesForecastDataTransformation,
+                "key": "data/store_sales_forecast.parquet"
+            },
+            {
+                "class": StoreSalesAnalyticsDataTransformation,
+                "key": "data/store_sales_analytics.parquet"
+            }
+        ]
 
-        # Upload to S3
-        output_key = "data/daily_total_sales.parquet"
-        output_buffer = io.BytesIO()
+        # 3. Apply and Upload
+        for item in transformations:
+            # Instantiate and apply
+            transformer = item["class"](df.copy())
+            transformed_df = transformer.apply_transformation()
 
-        transformed_df.to_parquet(output_buffer, index=False)
-        output_buffer.seek(0)
+            # Upload to S3
+            output_buffer = io.BytesIO()
+            transformed_df.to_parquet(output_buffer, index=False)
+            output_buffer.seek(0)
+
+            s3.get_conn().put_object(
+                Bucket=BUCKET_NAME,
+                Key=item["key"],
+                Body=output_buffer.getvalue()
+            )
+            print(f"Uploaded: s3://{BUCKET_NAME}/{item['key']}")
         
-        s3.get_conn().put_object(
-            Bucket=BUCKET_NAME,
-            Key=output_key,
-            Body=output_buffer.getvalue()
-        )
-        print(f"Uploaded daily sales file to s3://{BUCKET_NAME}/{output_key}")
-        return f"Successfully transformed {actual_key} -> {output_key}"
+        return "Successfully generated Forecast and Analytics files."
 
     process_data = PythonOperator(
         task_id="sales_transform",
