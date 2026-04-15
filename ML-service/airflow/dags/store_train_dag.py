@@ -152,7 +152,7 @@ def store_train_pipeline():
         return all_best_models
         
     @task(multiple_outputs=True)
-    def hyperparameter_tuning(datasets, best_model_data):
+    def hyperparameter_tuning(datasets_output: dict, best_model_results: dict):
         """
         Performs hyperparameter optimization on the selected model.
 
@@ -165,21 +165,42 @@ def store_train_pipeline():
             dict: A report containing the optimized hyperparameters and updated 
                 model metrics.
         """
-        train_key = datasets["train_dataset"]
         s3 = S3Hook(aws_conn_id="aws_default")
+        location_map = datasets_output.get("location_metadata", {})
+        tuned_results_all = {}
 
-        file_obj = s3.get_key(train_key, bucket_name=BUCKET_NAME)
-        body = file_obj.get()["Body"].read()
-        buffer = io.BytesIO(body)  
-        del body
-        train_df = pd.read_parquet(buffer)
-        del buffer
-        train_df.columns = train_df.columns.str.strip()
-        tuner = OptunaModelTuner(train_df, best_model_data)
-        tuned_model_data = tuner.start_tuning()
-        print("Tuned model report: ")
-        print(tuned_model_data)
-        return tuned_model_data
+        # Iterate through locations present in the model training results
+        for loc_id, best_model_data in best_model_results.items():
+            print(f"\n--- Starting Hyperparameter Tuning for Location: {loc_id} ---")
+
+            # 1. Get the correct S3 path for this location
+            if loc_id not in location_map:
+                print(f"Warning: No dataset found for location {loc_id}. Skipping.")
+                continue
+
+            train_key = location_map[loc_id]["train_path"]
+
+            # 2. Download the location-specific training data
+            file_obj = s3.get_key(train_key, bucket_name=BUCKET_NAME)
+            body = file_obj.get()["Body"].read()
+            buffer = io.BytesIO(body)  
+            del body
+            train_df = pd.read_parquet(buffer)
+            del buffer
+            train_df.columns = train_df.columns.str.strip()
+
+            # 3. Run the Tuner
+            # best_model_data contains 'model_type' and 'name' from the previous task
+            tuner = OptunaModelTuner(train_df, best_model_data)
+            tuned_model_data = tuner.start_tuning()
+
+            # 4. Attach metadata and store result
+            tuned_model_data["location_id"] = loc_id
+            tuned_results_all[loc_id] = tuned_model_data
+
+            print(f"Tuning complete for {loc_id}. Best Params: {tuned_model_data.get('best_hyperparameters')}")
+
+        return tuned_results_all
     
     @task(multiple_outputs=True)
     def train_challenger(datasets, tuned_model_data):
@@ -240,9 +261,9 @@ def store_train_pipeline():
         print(result)
 
 
-    datasets = data_preprocessing()
-    best_model_data = model_training(datasets)
-    # tuned_model_data = hyperparameter_tuning(datasets, best_model_data)
+    location_datasets = data_preprocessing()
+    all_best_models = model_training(location_datasets)
+    tuned_model_data = hyperparameter_tuning(location_datasets, all_best_models)
     # challenger_data = train_challenger(datasets, tuned_model_data)
     # model_promotion(datasets, challenger_data)
     
