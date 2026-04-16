@@ -104,7 +104,7 @@ def sales_train_pipeline():
         input_df.columns = input_df.columns.str.strip()
         print("Train data retrieved: ", input_df.head())
         
-        orchestrator = TrainingOrchestrator(input_df)
+        orchestrator = TrainingOrchestrator(input_df, "daily_sales_forecast_model")
         best_model_dict = orchestrator.run()
         print(best_model_dict)
         return best_model_dict
@@ -204,4 +204,4 @@ def sales_train_pipeline():
     challenger_data = train_challenger(datasets, tuned_model_data)
     model_promotion(datasets, challenger_data)
     
-prediction_pipeline = sales_train_pipeline()
+training_pipeline = sales_train_pipeline()

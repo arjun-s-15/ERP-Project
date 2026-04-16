@@ -28,9 +28,10 @@ class ModelPromotionManager:
         promote_challenger(challenger, production): Performs the MLflow stage transitions to swap the champion for the challenger.
         archive_challenger(challenger): Moves a rejected challenger to the 'Archived' stage.
     """
-    def __init__(self, model_name: str, test_df: pd.DataFrame, metric_fn=mean_squared_error):
+    def __init__(self, model_name: str, test_df: pd.DataFrame, dataset_source: str = "daily_sales_test", metric_fn=mean_squared_error):
         self.model_name = model_name
         self.test_df = test_df
+        self.dataset_source = dataset_source
         self.metric_fn = metric_fn
         self.client = MlflowClient()
 
@@ -57,7 +58,7 @@ class ModelPromotionManager:
             test_df = X_test.copy()
             test_df["target"] = y_test 
 
-            test_dataset = from_pandas(test_df, source="daily_sales_test")
+            test_dataset = from_pandas(test_df, source=self.dataset_source)
             mlflow.log_input(test_dataset, context="testing")
 
             if production:
@@ -66,7 +67,7 @@ class ModelPromotionManager:
                     mlflow.log_metric("production_test_rmse", production_rmse)
                     mlflow.log_param("production_eval_status", "success")
                 except Exception as e:
-                    print(f"⚠️ Production evaluation failed (likely schema mismatch): {e}")
+                    print(f"Production evaluation failed (likely schema mismatch): {e}")
                     production_rmse = 99999999
                     mlflow.log_metric("production_test_rmse", 0.0)
                     mlflow.log_param("production_eval_status", "failed_schema_mismatch")

@@ -25,8 +25,9 @@ class TrainingOrchestrator():
         train_models: Benchmarks a list of model architectures using PR-AUC metrics.
         select_best: Identifies the top-performing model from the benchmark report.
     """
-    def __init__(self, df: pd.DataFrame):
+    def __init__(self, df: pd.DataFrame, registered_model_name: str):
         self.df = df 
+        self.registered_model_name = registered_model_name
 
     def run(self):
         """
@@ -140,7 +141,6 @@ class TrainingOrchestrator():
         classifier.build_model(model_data["best_hyperparameters"])
         classifier.fit(X, y)
 
-        registered_model_name = "daily_sales_forecast_model"
         signature = infer_signature(X, y)
 
         with mlflow.start_run(run_name="train_challenger") as run:
@@ -148,22 +148,22 @@ class TrainingOrchestrator():
             mlflow.log_param("model_type", model_data["model_type"])
             mlflow.log_metric("train_rmse", model_data["best_train_rmse"])
 
-            classifier.log_model(signature=signature, registered_model_name=registered_model_name, input_example=X.head())
+            classifier.log_model(signature=signature, registered_model_name=self.registered_model_name, input_example=X.head())
 
             run_id = run.info.run_id
 
         client = MlflowClient()
-        versions = client.get_latest_versions(registered_model_name, stages=["None"])
+        versions = client.get_latest_versions(self.registered_model_name, stages=["None"])
         challenger_version = max(v.version for v in versions)
 
         client.set_model_version_tag(
-            name=registered_model_name,
+            name=self.registered_model_name,
             version=challenger_version,
             key="candidate",
             value="challenger"
         )
 
-        model_data["name"] = registered_model_name
+        model_data["name"] = self.registered_model_name
         model_data["model_version"] = challenger_version,
         model_data["run_id"] = run_id
 

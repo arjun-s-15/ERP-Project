@@ -126,14 +126,102 @@ class DailySalesDataTransformation(DataTransformationTemplate):
         return df 
 
 
+class StoreSalesForecastDataTransformation(DataTransformationTemplate):
+
+    def reorder_data(self, df: pd.DataFrame):
+        if "event_timestamp" in df.columns:
+            df["event_timestamp"] = pd.to_datetime(df["event_timestamp"], errors="raise")
+
+        df = df.rename(columns={"event_timestamp": "datetime"})
+        df["quantity"] = df["quantity"].astype("float64")
+
+        store_df = df.groupby(['datetime', 'location_id']).agg({'quantity': 'sum'}).reset_index()
+        store_df = store_df.sort_values(['location_id', 'datetime'])
+        return store_df
+
+    def derive_features(self, df: pd.DataFrame):
+        # Calendar Features
+        df["day_of_week"] = df["datetime"].dt.day_of_week.astype("int64")
+        df["month"] = df["datetime"].dt.month.astype("int64")
+        df["is_weekend"] = df["day_of_week"].isin([5, 6]).astype("int64")
+
+        # Lag Features
+        df['lag_1'] = df.groupby('location_id')['quantity'].shift(1)
+        df['lag_7'] = df.groupby('location_id')['quantity'].shift(7)
+
+        # Rolling window features
+        df['rolling_mean_7'] = df.groupby('location_id')['quantity'].transform(lambda x: x.rolling(window=7).mean())
+
+        return df
+    
+    def clean_data(self, df: pd.DataFrame):
+        df = df.dropna()
+        return df
+
+class StoreSalesAnalyticsDataTransformation(DataTransformationTemplate):
+    def reorder_data(self, df: pd.DataFrame):
+        if "event_timestamp" in df.columns:
+            df["event_timestamp"] = pd.to_datetime(df["event_timestamp"], errors="raise")
+
+        df = df.rename(columns={"event_timestamp": "datetime"})
+        df["quantity"] = df["quantity"].astype("float64")
+
+        store_df = df.groupby(['datetime', 'location_id']).agg({'quantity': 'sum'}).reset_index()
+        store_df = store_df.sort_values(['location_id', 'datetime'])
+        return store_df
+
+    def derive_features(self, df: pd.DataFrame):
+
+        # Calendar features
+        df["day_of_week"] = df["datetime"].dt.day_of_week.astype("int64")
+        df["month"] = df["datetime"].dt.month.astype("int64")
+        df["is_weekend"] = df["day_of_week"].isin([5, 6]).astype("int64")
+
+        return df
+
+    def clean_data(self, df: pd.DataFrame):
+        return df.dropna()
+    
+
 if __name__ == "__main__": 
+    # Load the raw dataset
     raw_df = pd.read_parquet("../../../datasets/transformed_sample_dataset_6m.parquet")
-    print("Initial raw dataframe: ")
+    
+    print("--- Initial Raw Dataframe ---")
     print(raw_df.head())
     print(raw_df.info())
+    print("\n" + "="*50 + "\n")
 
-    transformer = DailySalesDataTransformation(raw_df)
-    transformed_df = transformer.apply_transformation()
-    print("Transformed dataframe: ")
-    print(transformed_df.head())
-    print(transformed_df.info())
+    # 1. Existing Daily Sales Transformation
+    print("Running: Daily Sales Transformation...")
+    daily_transformer = DailySalesDataTransformation(raw_df.copy())
+    daily_df = daily_transformer.apply_transformation()
+    
+    print("Daily Sales Transformation Result:")
+    print(daily_df.head())
+    print(daily_df.info())
+    print("\n" + "-"*30 + "\n")
+
+    # 2. Store Sales Analytics Transformation
+    print("Running: Store Sales Analytics Transformation...")
+    analytics_transformer = StoreSalesAnalyticsDataTransformation(raw_df.copy())
+    
+    # Executing the pipeline steps
+    analytics_df = analytics_transformer.apply_transformation()
+    
+    print("Store Analytics Result (Aggregated by Store):")
+    print(analytics_df.head())
+    print(analytics_df.info())
+    print("\n" + "-"*30 + "\n")
+
+    # 3. Store Sales Forecast Transformation
+    print("Running: Store Sales Forecast Transformation...")
+    forecast_transformer = StoreSalesForecastDataTransformation(raw_df.copy())
+    
+    # Executing the pipeline steps
+    forecast_df = forecast_transformer.apply_transformation()
+    
+    print("Store Forecast Result (Includes Lags & Rolling Windows):")
+    print(forecast_df.head())
+    print(forecast_df.info())
+    
