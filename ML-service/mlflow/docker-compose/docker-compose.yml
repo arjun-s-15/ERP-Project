@@ -119,12 +119,3 @@ services:
       interval: 10s
       timeout: 5s
       retries: 30
-    networks:
-      - default
-      - project-network
-
-networks:
-  default:
-    name: mlflow-network
-  project-network:
-    external: true

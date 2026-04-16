@@ -86,8 +86,6 @@ services:
       retries: 5
       start_period: 5s
     restart: always
-    networks:
-      - project-network
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
@@ -102,14 +100,12 @@ services:
       retries: 50
       start_period: 30s
     restart: always
-    networks:
-      - project-network
 
   airflow-apiserver:
     <<: *airflow-common
     command: api-server
     ports:
-      - "8080:8080"
+      - "8081:8080" #localhost:8081 -> #container:8080
     healthcheck:
       test:
         ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/monitor/health"]
@@ -122,8 +118,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-    networks:
-      - project-network
 
   airflow-scheduler:
     <<: *airflow-common
@@ -139,8 +133,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-    networks:
-      - project-network
 
   airflow-dag-processor:
     <<: *airflow-common
@@ -160,8 +152,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-    networks:
-      - project-network
 
   airflow-worker:
     <<: *airflow-common
@@ -189,8 +179,6 @@ services:
         condition: service_healthy
       airflow-init:
         condition: service_completed_successfully
-    networks:
-      - project-network
 
   airflow-triggerer:
     <<: *airflow-common
@@ -210,8 +198,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-    networks:
-      - project-network
 
   airflow-init:
     <<: *airflow-common
@@ -304,8 +290,6 @@ services:
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
       _PIP_ADDITIONAL_REQUIREMENTS: ""
     user: "0:0"
-    networks:
-      - project-network
 
   airflow-cli:
     <<: *airflow-common
@@ -321,8 +305,6 @@ services:
       - airflow
     depends_on:
       <<: *airflow-common-depends-on
-    networks:
-      - project-network
 
   # You can enable flower by adding "--profile flower" option e.g. docker-compose --profile flower up
   # or by explicitly targeted on the command line e.g. docker-compose up flower.
@@ -348,7 +330,3 @@ services:
 
 volumes:
   postgres-db-volume:
-
-networks:
-  project-network:
-    external: true
