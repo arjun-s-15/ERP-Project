@@ -121,10 +121,10 @@ services:
       retries: 30
     networks:
       - default
-      - project-network
+      - app-network
 
 networks:
   default:
     name: mlflow-network
-  project-network:
+  app-network:
     external: true

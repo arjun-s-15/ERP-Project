@@ -87,7 +87,7 @@ services:
       start_period: 5s
     restart: always
     networks:
-      - project-network
+      - app-network
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
@@ -103,7 +103,7 @@ services:
       start_period: 30s
     restart: always
     networks:
-      - project-network
+      - app-network
 
   airflow-apiserver:
     <<: *airflow-common
@@ -123,7 +123,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - project-network
+      - app-network
 
   airflow-scheduler:
     <<: *airflow-common
@@ -140,7 +140,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - project-network
+      - app-network
 
   airflow-dag-processor:
     <<: *airflow-common
@@ -161,7 +161,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - project-network
+      - app-network
 
   airflow-worker:
     <<: *airflow-common
@@ -190,7 +190,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - project-network
+      - app-network
 
   airflow-triggerer:
     <<: *airflow-common
@@ -211,7 +211,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - project-network
+      - app-network
 
   airflow-init:
     <<: *airflow-common
@@ -305,7 +305,7 @@ services:
       _PIP_ADDITIONAL_REQUIREMENTS: ""
     user: "0:0"
     networks:
-      - project-network
+      - app-network
 
   airflow-cli:
     <<: *airflow-common
@@ -322,7 +322,7 @@ services:
     depends_on:
       <<: *airflow-common-depends-on
     networks:
-      - project-network
+      - app-network
 
   # You can enable flower by adding "--profile flower" option e.g. docker-compose --profile flower up
   # or by explicitly targeted on the command line e.g. docker-compose up flower.
@@ -350,5 +350,5 @@ volumes:
   postgres-db-volume:
 
 networks:
-  project-network:
+  app-network:
     external: true

@@ -164,7 +164,7 @@ def sales_train_pipeline():
         del buffer
         train_df.columns = train_df.columns.str.strip()
 
-        orchestrator = TrainingOrchestrator(train_df)
+        orchestrator = TrainingOrchestrator(train_df, "daily_sales_forecast_model")
         challenger_data = orchestrator.train_challenger(tuned_model_data)
         
         print(challenger_data)
