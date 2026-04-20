@@ -1,0 +1,11 @@
+apache-airflow-task-sdk>=1.1.0
+mlflow>=3.10.1
+pandas>=2.3.3
+numpy>=2.4.3
+psycopg2-binary>=2.9.11
+scikit-learn>=1.8.0
+sqlalchemy>=2.0.48
+boto3>=1.42.69
+pyarrow>=23.0.1
+xgboost>=3.2.0
+optuna>=4.8.0
