@@ -26,19 +26,22 @@ public class InvoiceService {
     private final S3UrlService s3UrlService;
     private final InvoiceRepo invoiceRepository;
     private final InvoiceNumberGenerator invoiceNumberGenerator;
+    private final EmailService emailService;
 
     public InvoiceService(CustomerRepo customerRepo,
                           TemplateEngine templateEngine,
                           S3UploadService s3UploadService,
                           S3UrlService s3UrlService,
                           InvoiceRepo invoiceRepository,
-                          InvoiceNumberGenerator invoiceNumberGenerator) {
+                          InvoiceNumberGenerator invoiceNumberGenerator,
+                          EmailService emailService) {
         this.customerRepo = customerRepo;
         this.templateEngine = templateEngine;
         this.s3UploadService = s3UploadService;
         this.s3UrlService = s3UrlService;
         this.invoiceRepository = invoiceRepository;
         this.invoiceNumberGenerator = invoiceNumberGenerator;
+        this.emailService = emailService;
     }
 
     public String createInvoiceAndUpload(InvoiceEntity invoiceEntity) throws Exception {
@@ -82,7 +85,20 @@ public class InvoiceService {
         }
 
         // 7. Return presigned URL
-        return s3UrlService.generatePresignedUrl(key);
+        String url =  s3UrlService.generatePresignedUrl(key);
+
+        //8. Send Email
+        if (invoiceEntity.getCustomer() != null
+                && invoiceEntity.getCustomer().getEmail() != null) {
+
+            emailService.sendInvoiceEmail(
+                    invoiceEntity.getCustomer().getEmail(),
+                    invoiceNumber,
+                    url
+            );
+        }
+
+        return url;
     }
 
     // Returns true if at least one customer field has a value
@@ -137,7 +153,7 @@ public class InvoiceService {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
-        builder.withHtmlContent(html, null);
+        builder.withHtmlContent(html, "file:/");
         builder.toStream(outputStream);
         builder.run();
 
