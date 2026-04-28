@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from graphs import graph
+from models import RunGraphRequest
 
 # --- Load Environment Variables ---
 load_dotenv()
@@ -79,7 +80,8 @@ async def get_presigned_url(file_key: str, expires_in: int = 60):
 
 
 @app.post("/run-graph")
-async def run_graph(input_filename: str):
+async def run_graph(request: RunGraphRequest):
+    input_filename = request.input_filename
     try:
         local_input_path = os.path.join(LOCAL_INPUT_DIR, input_filename)
 

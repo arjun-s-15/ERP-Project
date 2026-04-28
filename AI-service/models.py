@@ -3,6 +3,11 @@ import pandas as pd
 from pydantic import BaseModel, Field
 from typing import TypedDict, Optional, List 
 
+
+class RunGraphRequest(BaseModel):
+    input_filename: str
+
+
 class OperationType(str, Enum):
     RENAME = "rename"
     CAST = "cast" 

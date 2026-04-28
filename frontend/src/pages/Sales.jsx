@@ -6,6 +6,8 @@ import { useState } from "react";
 const Sales = () => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [outputPath, setOutputPath] = useState(null);
 
   const handleFileSelect = async (selectedFile) => {
     setFile(selectedFile);
@@ -30,15 +32,27 @@ const Sales = () => {
       });
 
       console.log("File uploaded successfully");
+
+      // Trigger graph execution
+      setProcessing(true);
+
+      const graphRes = await axios.post("http://localhost:8000/run-graph", {
+        input_filename: selectedFile.name,
+      });
+
+      console.log("Graph executed successfully:", graphRes.data);
+      setOutputPath(graphRes.data.output_path);
     } catch (err) {
       console.error("Error uploading file:", err);
     } finally {
       setUploading(false);
+      setProcessing(false);
     }
   };
 
   const handleRemove = () => {
     setFile(null);
+    setOutputPath(null);
   };
 
   return (
@@ -53,6 +67,15 @@ const Sales = () => {
           <p>{file.name}</p>
 
           {uploading && <p>Uploading...</p>}
+          {processing && <p>Processing...</p>}
+
+          {outputPath && (
+            <div style={{ marginTop: "10px" }}>
+              <strong>Output:</strong>
+              <p>{outputPath}</p>
+            </div>
+          )}
+
           <button onClick={handleRemove}>Remove File</button>
         </div>
       )}
