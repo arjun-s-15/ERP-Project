@@ -3,6 +3,7 @@ import boto3
 from dotenv import load_dotenv
 from time import time
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from graphs import graph
@@ -26,6 +27,14 @@ os.makedirs(LOCAL_OUTPUT_DIR, exist_ok=True)
 
 # --- FastAPI App Setup ---
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/health/s3")
 async def test_s3_connection():
@@ -52,6 +61,21 @@ async def test_s3_connection():
                 "error": str(e)
             }
         )
+
+
+@app.get("/presigned-url")
+async def get_presigned_url(file_key: str, expires_in: int = 60):
+    """Return a presigned URL for a file in S3."""
+    try:
+        url = s3_client.generate_presigned_url(
+            'put_object',
+            Params={'Bucket': BUCKET_NAME, 'Key': file_key, 'ContentType': 'application/octet-stream'},
+            ExpiresIn=expires_in
+        )
+        return {"url": url}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
 
 
 @app.post("/run-graph")
