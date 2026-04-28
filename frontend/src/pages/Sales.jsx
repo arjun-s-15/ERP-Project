@@ -1,13 +1,14 @@
 import Layout from "../components/Layout";
 import axios from "axios";
 import FileUpload from "../components/FileUpload";
+import SalesDashboard from "../components/SalesDashboard";
 import { useState } from "react";
 
 const Sales = () => {
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState({ name: "sample_dataset.csv" }); // Simulate uploaded file
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
-  const [outputPath, setOutputPath] = useState(null);
+  const [outputPath, setOutputPath] = useState("sample_output_path"); // Simulate processing complete
 
   const handleFileSelect = async (selectedFile) => {
     setFile(selectedFile);
@@ -69,12 +70,14 @@ const Sales = () => {
           {uploading && <p>Uploading...</p>}
           {processing && <p>Processing...</p>}
 
-          {outputPath && (
+          {/* {outputPath && (
             <div style={{ marginTop: "10px" }}>
               <strong>Output:</strong>
               <p>{outputPath}</p>
             </div>
-          )}
+          )} */}
+
+          {outputPath && <SalesDashboard />}
 
           <button onClick={handleRemove}>Remove File</button>
         </div>
