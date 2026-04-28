@@ -13,7 +13,7 @@ load_dotenv()
 
 DEFAULT_FILE_KEY = "data/daily_total_sales.parquet"
 BUCKET_NAME = "insighto-s3-bucket"
-API_URL = "http://model_service:8000/predict_sales"
+API_URL = "http://model-service:8000/predict_sales"
 
 default_args = {
     'owner': 'atharv',
