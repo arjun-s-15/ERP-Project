@@ -194,23 +194,39 @@ const SalesDashboard = () => {
         <h2 className="section-title">Forecast</h2>
 
         <div className="stats-grid">
+          {/* ── Total Forecast ── */}
           {totalFc && (
             <div className="stat-card blue">
               <div className="stat-label">Total (Next Day)</div>
+
               <div className="stat-value">
                 {totalFc.predicted_sales.toFixed(0)}
               </div>
+
               <div className="card-subtitle">
                 {totalFc.prediction_date.slice(0, 10)}
+              </div>
+
+              <div className="model-meta">
+                {totalFc.model_name} · v{totalFc.model_version}
               </div>
             </div>
           )}
 
+          {/* ── Store Forecasts ── */}
           {latestPerStore.map((row) => (
             <div key={row.location_id} className="stat-card">
               <div className="stat-label">Store {row.location_id}</div>
+
               <div className="stat-value">{row.predicted_sales.toFixed(0)}</div>
-              <div className="card-subtitle">v{row.model_version}</div>
+
+              <div className="card-subtitle">
+                {row.prediction_date.slice(0, 10)}
+              </div>
+
+              <div className="model-meta">
+                {row.model_name} · v{row.model_version}
+              </div>
             </div>
           ))}
         </div>

@@ -3,6 +3,7 @@ import axios from "axios";
 import FileUpload from "../components/FileUpload";
 import SalesDashboard from "../components/SalesDashboard";
 import { useState } from "react";
+import "../styles/sales.css";
 
 const Sales = () => {
   const [file, setFile] = useState({ name: "sample_dataset.csv" }); // Simulate uploaded file
@@ -63,23 +64,28 @@ const Sales = () => {
       {!file ? (
         <FileUpload onFileSelect={handleFileSelect} />
       ) : (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Uploaded File:</h3>
-          <p>{file.name}</p>
+        <div className="sales-container">
+          {/* ── Top Bar ── */}
+          <div className="file-bar">
+            <div className="file-info">
+              <span className="file-label">Uploaded File</span>
+              <span className="file-name">{file.name}</span>
 
-          {uploading && <p>Uploading...</p>}
-          {processing && <p>Processing...</p>}
-
-          {/* {outputPath && (
-            <div style={{ marginTop: "10px" }}>
-              <strong>Output:</strong>
-              <p>{outputPath}</p>
+              {uploading && (
+                <span className="status uploading">Uploading...</span>
+              )}
+              {processing && (
+                <span className="status processing">Processing...</span>
+              )}
             </div>
-          )} */}
 
+            <button className="btn-remove" onClick={handleRemove}>
+              Remove
+            </button>
+          </div>
+
+          {/* ── Dashboard ── */}
           {outputPath && <SalesDashboard />}
-
-          <button onClick={handleRemove}>Remove File</button>
         </div>
       )}
     </Layout>

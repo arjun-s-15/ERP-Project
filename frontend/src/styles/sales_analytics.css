@@ -142,6 +142,13 @@
   gap: 6px;
 }
 
+.model-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  opacity: 0.85;
+}
+
 /* Store label */
 .forecast-store {
   font-size: 13px;
