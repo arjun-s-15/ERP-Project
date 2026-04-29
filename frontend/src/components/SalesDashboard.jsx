@@ -20,6 +20,8 @@ const SalesDashboard = () => {
   const [dowSales, setDowSales] = useState([]);
   const [storeForecast, setStoreForecast] = useState([]);
   const [totalForecast, setTotalForecast] = useState([]);
+  const [dailyTotal, setDailyTotal] = useState([]);
+  const [storeDaily, setStoreDaily] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,17 +33,27 @@ const SalesDashboard = () => {
           dowRes,
           storeForecastRes,
           totalForecastRes,
+          dailyTotalRes,
+          storeDailyRes,
         ] = await Promise.all([
           axios.get("http://localhost:8001/analytics/total-store-sales"),
           axios.get("http://localhost:8001/analytics/monthly-store-sales"),
           axios.get("http://localhost:8001/analytics/day-of-week-sales"),
           axios.get("http://localhost:8001/predictions/sales-forecast/store"),
           axios.get("http://localhost:8001/predictions/sales-forecast/total"),
+          axios.get(
+            "http://localhost:8001/analytics/historical/total-daily-sales",
+          ),
+          axios.get(
+            "http://localhost:8001/analytics/historical/store_daily_sales",
+          ),
         ]);
 
         setTotalSales(totalRes.data);
         setMonthlySales(monthlyRes.data);
         setDowSales(dowRes.data);
+        setDailyTotal(dailyTotalRes.data);
+        setStoreDaily(storeDailyRes.data);
         setStoreForecast(storeForecastRes.data);
         setTotalForecast(totalForecastRes.data);
       } catch (err) {
@@ -55,6 +67,18 @@ const SalesDashboard = () => {
   }, []);
 
   if (loading) return <p>Loading dashboard...</p>;
+
+  const storeIdsDaily = [...new Set(storeDaily.map((d) => d.location_id))];
+  const storeDailyFormatted = Object.values(
+    storeDaily.reduce((acc, item) => {
+      const date = item.datetime;
+      if (!acc[date]) {
+        acc[date] = { datetime: date }; // ← was { date }, must match XAxis dataKey
+      }
+      acc[date][`store_${item.location_id}`] = item.quantity;
+      return acc;
+    }, {}),
+  );
 
   // Keep only the latest model_version per location_id
   const latestPerStore = Object.values(
@@ -95,6 +119,18 @@ const SalesDashboard = () => {
 
   return (
     <div>
+      <div className="card">
+        <div className="card-title">Daily Total Sales Trend</div>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={dailyTotal}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="datetime" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="total_sales" stroke="#2563EB" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
       {/* ── Total Sales Forecast ── */}
       {totalFc && (
         <div className="card">
@@ -106,6 +142,28 @@ const SalesDashboard = () => {
           </p>
         </div>
       )}
+
+      <div className="card">
+        <div className="card-title">Store-wise Daily Sales Trend</div>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={storeDailyFormatted}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="datetime" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            {storeIdsDaily.map((id, index) => (
+              <Line
+                key={id}
+                type="monotone"
+                dataKey={`store_${id}`}
+                stroke={["#2563EB", "#F59E0B", "#22C55E", "#EF4444"][index % 4]}
+                dot={false}
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* ── Store Sales Forecast ── */}
       <div className="card">
