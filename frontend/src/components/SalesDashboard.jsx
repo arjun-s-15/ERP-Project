@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import "../styles/dashboard.css";
+import "../styles/sales_analytics.css";
 
 const SalesDashboard = () => {
   const [totalSales, setTotalSales] = useState([]);
@@ -118,129 +118,191 @@ const SalesDashboard = () => {
   const storeIds = [...new Set(monthlySales.map((d) => d.location_id))];
 
   return (
-    <div>
-      <div className="card">
-        <div className="card-title">Daily Total Sales Trend</div>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={dailyTotal}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="datetime" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="total_sales" stroke="#2563EB" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      {/* ── Total Sales Forecast ── */}
-      {totalFc && (
-        <div className="card">
-          <div className="card-title">Total Sales Forecast</div>
-          <p>Prediction Date: {totalFc.prediction_date.slice(0, 10)}</p>
-          <p>Predicted Sales: {totalFc.predicted_sales.toFixed(2)}</p>
-          <p>
-            Model: {totalFc.model_name} (v{totalFc.model_version})
-          </p>
-        </div>
-      )}
+    <div className="dashboard">
+      {/* ── Section: Trends ── */}
+      <div className="section">
+        <h2 className="section-title">Sales Trends</h2>
 
-      <div className="card">
-        <div className="card-title">Store-wise Daily Sales Trend</div>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={storeDailyFormatted}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="datetime" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            {storeIdsDaily.map((id, index) => (
-              <Line
-                key={id}
-                type="monotone"
-                dataKey={`store_${id}`}
-                stroke={["#2563EB", "#F59E0B", "#22C55E", "#EF4444"][index % 4]}
-                dot={false}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* ── Store Sales Forecast ── */}
-      <div className="card">
-        <div className="card-title">Store Sales Forecast</div>
-        {latestPerStore.map((row) => (
-          <div key={row.location_id} style={{ marginBottom: "12px" }}>
-            <p>
-              Store {row.location_id} — Predicted Sales:{" "}
-              {row.predicted_sales.toFixed(2)}
-            </p>
-            <p>
-              Prediction Date: {row.prediction_date.slice(0, 10)} · Model v
-              {row.model_version}
-            </p>
+        <div className="grid-2">
+          {/* Daily Total */}
+          <div className="card">
+            <div className="card-title">Daily Total Sales</div>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={dailyTotal}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="datetime"
+                  label={{
+                    value: "Date",
+                    position: "insideBottom",
+                    offset: -5,
+                  }}
+                />
+                <YAxis
+                  label={{ value: "Sales", angle: -90, position: "insideLeft" }}
+                />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="total_sales"
+                  stroke="#2563EB"
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-        ))}
+
+          {/* Store Trend */}
+          <div className="card">
+            <div className="card-title">Store-wise Daily Sales</div>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={storeDailyFormatted}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="datetime"
+                  label={{
+                    value: "Date",
+                    position: "insideBottom",
+                    offset: -5,
+                  }}
+                />
+                <YAxis
+                  label={{ value: "Sales", angle: -90, position: "insideLeft" }}
+                />
+                <Tooltip />
+                <Legend />
+                {storeIdsDaily.map((id, index) => (
+                  <Line
+                    key={id}
+                    type="monotone"
+                    dataKey={`store_${id}`}
+                    name={`Store ${id}`}
+                    stroke={
+                      ["#2563EB", "#F59E0B", "#22C55E", "#EF4444"][index % 4]
+                    }
+                    dot={false}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
-      {/* ── Total Sales (Bar) ── */}
-      <div className="card">
-        <div className="card-title">Total Sales per Store</div>
+      {/* ── Section: Forecast ── */}
+      <div className="section">
+        <h2 className="section-title">Forecast</h2>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={totalSales}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="location_id" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="quantity" fill="#2563EB" />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="stats-grid">
+          {totalFc && (
+            <div className="stat-card blue">
+              <div className="stat-label">Total (Next Day)</div>
+              <div className="stat-value">
+                {totalFc.predicted_sales.toFixed(0)}
+              </div>
+              <div className="card-subtitle">
+                {totalFc.prediction_date.slice(0, 10)}
+              </div>
+            </div>
+          )}
+
+          {latestPerStore.map((row) => (
+            <div key={row.location_id} className="stat-card">
+              <div className="stat-label">Store {row.location_id}</div>
+              <div className="stat-value">{row.predicted_sales.toFixed(0)}</div>
+              <div className="card-subtitle">v{row.model_version}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* ── Monthly Sales (Line) ── */}
-      <div className="card">
-        <div className="card-title">Monthly Sales Trend</div>
+      {/* ── Section: Breakdown ── */}
+      <div className="section">
+        <h2 className="section-title">Breakdowns</h2>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={monthlyFormatted}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            {storeIds.map((id, index) => (
-              <Line
-                key={id}
-                type="monotone"
-                dataKey={`store_${id}`}
-                stroke={["#2563EB", "#F59E0B", "#22C55E", "#EF4444"][index % 4]}
+        <div className="grid-2">
+          {/* Total per store */}
+          <div className="card">
+            <div className="card-title">Total Sales per Store</div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={totalSales}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="location_id"
+                  label={{
+                    value: "Store",
+                    position: "insideBottom",
+                    offset: -5,
+                  }}
+                />
+                <YAxis
+                  label={{ value: "Sales", angle: -90, position: "insideLeft" }}
+                />
+                <Tooltip />
+                <Bar dataKey="quantity" fill="#2563EB" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Day of week */}
+          <div className="card">
+            <div className="card-title">Sales by Day of Week</div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={dowFormatted}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="day"
+                  label={{ value: "Day", position: "insideBottom", offset: -5 }}
+                />
+                <YAxis
+                  label={{ value: "Sales", angle: -90, position: "insideLeft" }}
+                />
+                <Tooltip />
+                <Legend />
+                {storeIds.map((id, index) => (
+                  <Bar
+                    key={id}
+                    dataKey={`store_${id}`}
+                    name={`Store ${id}`}
+                    fill={
+                      ["#2563EB", "#F59E0B", "#22C55E", "#EF4444"][index % 4]
+                    }
+                  />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Monthly full width */}
+        <div className="card">
+          <div className="card-title">Monthly Sales Trend</div>
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart data={monthlyFormatted}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="month"
+                label={{ value: "Month", position: "insideBottom", offset: -5 }}
               />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* ── Day of Week Sales (Bar) ── */}
-      <div className="card">
-        <div className="card-title">Day-wise Sales</div>
-
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={dowFormatted}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            {storeIds.map((id, index) => (
-              <Bar
-                key={id}
-                dataKey={`store_${id}`}
-                name={`store_${id}`}
-                fill={["#2563EB", "#F59E0B", "#22C55E", "#EF4444"][index % 4]}
+              <YAxis
+                label={{ value: "Sales", angle: -90, position: "insideLeft" }}
               />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
+              <Tooltip />
+              <Legend />
+              {storeIds.map((id, index) => (
+                <Line
+                  key={id}
+                  type="monotone"
+                  dataKey={`store_${id}`}
+                  name={`Store ${id}`}
+                  stroke={
+                    ["#2563EB", "#F59E0B", "#22C55E", "#EF4444"][index % 4]
+                  }
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );
