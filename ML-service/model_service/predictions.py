@@ -29,8 +29,8 @@ def fetch_total_predictions():
         # pandas uses s3fs under the hood for s3:// paths
         # Ensure AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are in env
         df = wr.s3.read_csv(path=TOTAL_FORECAST_PATH)
-        df['feature_date'] = pd.to_datetime(df['feature_date'])
-        df['prediction_date'] = pd.to_datetime(df['prediction_date'])
+        df['feature_date'] = pd.to_datetime(df['feature_date'], format='mixed', errors='coerce')
+        df['prediction_date'] = pd.to_datetime(df['prediction_date'], format='mixed', errors='coerce')
         return df
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"S3 Read Error: {str(e)}")

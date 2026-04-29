@@ -15,54 +15,107 @@ import {
 import "../styles/sales_analytics.css";
 
 const SalesDashboard = () => {
-  const [totalSales, setTotalSales] = useState([]);
-  const [monthlySales, setMonthlySales] = useState([]);
-  const [dowSales, setDowSales] = useState([]);
-  const [storeForecast, setStoreForecast] = useState([]);
-  const [totalForecast, setTotalForecast] = useState([]);
-  const [dailyTotal, setDailyTotal] = useState([]);
-  const [storeDaily, setStoreDaily] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [totalSales, setTotalSales] = useState(() => {
+    const saved = localStorage.getItem("dashboard_totalSales");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [monthlySales, setMonthlySales] = useState(() => {
+    const saved = localStorage.getItem("dashboard_monthlySales");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [dowSales, setDowSales] = useState(() => {
+    const saved = localStorage.getItem("dashboard_dowSales");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [storeForecast, setStoreForecast] = useState(() => {
+    const saved = localStorage.getItem("dashboard_storeForecast");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [totalForecast, setTotalForecast] = useState(() => {
+    const saved = localStorage.getItem("dashboard_totalForecast");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [dailyTotal, setDailyTotal] = useState(() => {
+    const saved = localStorage.getItem("dashboard_dailyTotal");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [storeDaily, setStoreDaily] = useState(() => {
+    const saved = localStorage.getItem("dashboard_storeDaily");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [loading, setLoading] = useState(() => {
+    return !localStorage.getItem("dashboard_totalSales");
+  });
+
+  const fetchAll = async () => {
+    try {
+      const [
+        totalRes,
+        monthlyRes,
+        dowRes,
+        storeForecastRes,
+        totalForecastRes,
+        dailyTotalRes,
+        storeDailyRes,
+      ] = await Promise.all([
+        axios.get("http://localhost:8001/analytics/total-store-sales"),
+        axios.get("http://localhost:8001/analytics/monthly-store-sales"),
+        axios.get("http://localhost:8001/analytics/day-of-week-sales"),
+        axios.get("http://localhost:8001/predictions/sales-forecast/store"),
+        axios.get("http://localhost:8001/predictions/sales-forecast/total"),
+        axios.get(
+          "http://localhost:8001/analytics/historical/total-daily-sales",
+        ),
+        axios.get(
+          "http://localhost:8001/analytics/historical/store_daily_sales",
+        ),
+      ]);
+
+      setTotalSales(totalRes.data);
+      setMonthlySales(monthlyRes.data);
+      setDowSales(dowRes.data);
+      setDailyTotal(dailyTotalRes.data);
+      setStoreDaily(storeDailyRes.data);
+      setStoreForecast(storeForecastRes.data);
+      setTotalForecast(totalForecastRes.data);
+
+      localStorage.setItem(
+        "dashboard_totalSales",
+        JSON.stringify(totalRes.data),
+      );
+      localStorage.setItem(
+        "dashboard_monthlySales",
+        JSON.stringify(monthlyRes.data),
+      );
+      localStorage.setItem("dashboard_dowSales", JSON.stringify(dowRes.data));
+      localStorage.setItem(
+        "dashboard_dailyTotal",
+        JSON.stringify(dailyTotalRes.data),
+      );
+      localStorage.setItem(
+        "dashboard_storeDaily",
+        JSON.stringify(storeDailyRes.data),
+      );
+      localStorage.setItem(
+        "dashboard_storeForecast",
+        JSON.stringify(storeForecastRes.data),
+      );
+      localStorage.setItem(
+        "dashboard_totalForecast",
+        JSON.stringify(totalForecastRes.data),
+      );
+    } catch (err) {
+      console.error("Analytics error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const [
-          totalRes,
-          monthlyRes,
-          dowRes,
-          storeForecastRes,
-          totalForecastRes,
-          dailyTotalRes,
-          storeDailyRes,
-        ] = await Promise.all([
-          axios.get("http://localhost:8001/analytics/total-store-sales"),
-          axios.get("http://localhost:8001/analytics/monthly-store-sales"),
-          axios.get("http://localhost:8001/analytics/day-of-week-sales"),
-          axios.get("http://localhost:8001/predictions/sales-forecast/store"),
-          axios.get("http://localhost:8001/predictions/sales-forecast/total"),
-          axios.get(
-            "http://localhost:8001/analytics/historical/total-daily-sales",
-          ),
-          axios.get(
-            "http://localhost:8001/analytics/historical/store_daily_sales",
-          ),
-        ]);
-
-        setTotalSales(totalRes.data);
-        setMonthlySales(monthlyRes.data);
-        setDowSales(dowRes.data);
-        setDailyTotal(dailyTotalRes.data);
-        setStoreDaily(storeDailyRes.data);
-        setStoreForecast(storeForecastRes.data);
-        setTotalForecast(totalForecastRes.data);
-      } catch (err) {
-        console.error("Analytics error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    if (localStorage.getItem("dashboard_totalSales")) {
+      setLoading(false);
+      return;
+    }
     fetchAll();
   }, []);
 
@@ -117,8 +170,28 @@ const SalesDashboard = () => {
 
   const storeIds = [...new Set(monthlySales.map((d) => d.location_id))];
 
+  const handleRefresh = async () => {
+    [
+      "totalSales",
+      "monthlySales",
+      "dowSales",
+      "dailyTotal",
+      "storeDaily",
+      "storeForecast",
+      "totalForecast",
+    ].forEach((key) => localStorage.removeItem(`dashboard_${key}`));
+    setLoading(true);
+    await fetchAll();
+  };
+
   return (
     <div className="dashboard">
+      <div className="dashboard-header">
+        <button className="btn-refresh" onClick={handleRefresh}>
+          Refresh Data
+        </button>
+      </div>
+
       {/* ── Section: Trends ── */}
       <div className="section">
         <h2 className="section-title">Sales Trends</h2>

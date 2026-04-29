@@ -71,3 +71,70 @@
 .btn-remove:hover {
   background: #dc2626;
 }
+
+.steps-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.step-row.done {
+  color: #111827;
+}
+.step-row.error {
+  color: #dc2626;
+}
+
+.step-icon {
+  font-size: 13px;
+  font-weight: 600;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon.done {
+  background: #dcfce7;
+  color: #15803d;
+}
+.step-icon.error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.step-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.step-row.running {
+  color: #6b7280;
+  font-style: italic;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
