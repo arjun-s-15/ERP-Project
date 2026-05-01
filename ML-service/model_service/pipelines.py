@@ -20,6 +20,10 @@ AIRFLOW_PASS = os.getenv("AIRFLOW_PASS")
 class TriggerConfig(BaseModel):
     file_key: Optional[str] = "data/transformed_sample_dataset_6m.parquet"
 
+class DagStatusRequest(BaseModel):
+    dag_id: str
+    dag_run_id: str
+
 
 def get_airflow_token():
     """Helper to authenticate and retrieve the JWT access token."""
@@ -62,6 +66,26 @@ def trigger_dag(dag_id: str, file_key: str):
     }
 
 
+def get_dag_run_status(dag_id: str, dag_run_id: str):
+    """Helper to get the status of a DAG run."""
+    token = get_airflow_token()
+    url = f"{AIRFLOW_BASE_URL}/api/v2/dags/{dag_id}/dagRuns/{dag_run_id}"
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    
+    print(f"Get DAG Run Status | DAG: {dag_id} | Run ID: {dag_run_id} | Status: {response.status_code}")
+    print(f"Response Body: {response.json()}")
+    
+    data = response.json()
+    return {"state": data["state"], "dag_run_id": dag_run_id}
+
+
 @router.post("/trigger-master")
 async def trigger_master_pipeline(config: TriggerConfig):
     """Triggers the Master Orchestrator for parallel transformations."""
@@ -95,3 +119,9 @@ async def trigger_forecast_store(config: TriggerConfig):
     """Triggers the Forecast pipeline for Store-level Sales."""
     key = config.file_key or "data/store_sales_forecast.parquet"
     return trigger_dag("store_forecast_pipeline", key)
+
+
+@router.post("/dag-status")
+async def dag_status(request: DagStatusRequest):
+    """Returns the current state of a DAG run."""
+    return get_dag_run_status(request.dag_id, request.dag_run_id)
