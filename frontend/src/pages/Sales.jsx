@@ -1,5 +1,6 @@
-import Layout from "../components/Layout";
 import axios from "axios";
+import FileUpload from "./FileUpload";
+import { useState } from "react";
 import FileUpload from "../components/FileUpload";
 import SalesDashboard from "../components/SalesDashboard";
 import { useState, useEffect } from "react";
