@@ -1,6 +1,4 @@
 import axios from "axios";
-import FileUpload from "./FileUpload";
-import { useState } from "react";
 import FileUpload from "../components/FileUpload";
 import SalesDashboard from "../components/SalesDashboard";
 import { useState, useEffect } from "react";
@@ -157,9 +155,7 @@ const Sales = () => {
   };
 
   return (
-    <Layout>
-      <h1>Sales</h1>
-
+    <>
       {!file ? (
         <FileUpload onFileSelect={handleFileSelect} />
       ) : (
@@ -190,7 +186,7 @@ const Sales = () => {
           )}
         </div>
       )}
-    </Layout>
+    </>
   );
 };
 

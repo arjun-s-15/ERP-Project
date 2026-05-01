@@ -10,6 +10,7 @@
 .upload-zone {
   width: 100%;
   max-width: 560px;
+  margin: auto;        /* ← add this */
   background: #fff;
   border: 2px dashed #b0c4de;
   border-radius: 14px;
