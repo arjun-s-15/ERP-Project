@@ -45,8 +45,8 @@ const Sales = () => {
   };
 
   const pollDag = async (dagRunId) => {
-    const maxAttempts = 30;
-    const interval = 10000; // 10 seconds
+    const maxAttempts = 60;
+    const interval = 20000; // 10 seconds
 
     for (let i = 0; i < maxAttempts; i++) {
       const res = await axios.post(
@@ -89,16 +89,16 @@ const Sales = () => {
       setProcessing(true);
 
       setStep("Running multi-agent transformation", "loading");
-      const graphRes = await axios.post("http://localhost:8000/run-graph", {
-        input_filename: selectedFile.name,
-      });
-      setOutputPath(graphRes.data.s3_output_path);
-      console.log("graphRes.data:", graphRes.data);
+      // const graphRes = await axios.post("http://localhost:8000/run-graph", {
+      //   input_filename: selectedFile.name,
+      // });
+      // setOutputPath(graphRes.data.s3_output_path);
+      // console.log("graphRes.data:", graphRes.data);
       setOutputPath(`data/${selectedFile.name}`); // For testing without multi-agent graph
       setStep("Running multi-agent transformation", "done");
 
-      const outputFilename = graphRes.data.s3_output_path.split("/").pop();
-      // const outputFilename = `transformed_sample_dataset_6m.parquet`; // For testing without multi-agent graph
+      // const outputFilename = graphRes.data.s3_output_path.split("/").pop();
+      const outputFilename = `transformed_sample_dataset_6m.parquet`; // For testing without multi-agent graph
 
       setStep("Triggering Airflow pipeline", "loading");
       const airflowRes = await axios.post(
