@@ -5,25 +5,24 @@ import './styles/erp.css';
 
 // Components
 import Sidebar from './components/Sidebar';
-import Topbar from './components/Topbar'; // Import your new Topbar
+import Topbar from './components/Topbar';
 
 // Pages
 import Login from './pages/Login';
 import Sales from "./pages/Sales";
 import InvoiceForm from './pages/InvoiceForm';
 import Settings from './pages/Settings';
+import InvoiceDashboard from './pages/InvoiceDashboard';
 
-/**
- * Layout wrapper that automatically adds Sidebar and Topbar.
- */
 const MainLayout = ({ children }) => {
   const location = useLocation();
 
-  // Map the URL paths to friendly titles for the Topbar
+  // ✅ FIXED: exact path matching so /invoice/new doesn't bleed into /invoices
   const getTitle = (path) => {
-    if (path.startsWith('/invoice')) return 'New Invoice';
-    if (path === '/sales') return 'Sales';
-    if (path === '/settings') return 'Settings';
+    if (path === '/invoice/new') return 'New Invoice';
+    if (path === '/invoices')    return 'Invoices';
+    if (path === '/sales')       return 'Sales';
+    if (path === '/settings')    return 'Settings';
     return 'ERP Dashboard';
   };
 
@@ -31,10 +30,9 @@ const MainLayout = ({ children }) => {
     <div className="with-sidebar">
       <Sidebar />
       <main className="main">
-        {/* Topbar is now global for all protected routes */}
         <Topbar title={getTitle(location.pathname)} />
         <div className="page-content">
-           {children}
+          {children}
         </div>
       </main>
     </div>
@@ -45,16 +43,15 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes - No Layout, No Topbar */}
+        {/* Public */}
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Protected Routes - Wrapped in MainLayout */}
-        <Route path="/sales" element={<MainLayout><Sales /></MainLayout>} />
+        {/* Protected */}
+        <Route path="/sales"       element={<MainLayout><Sales /></MainLayout>} />
         <Route path="/invoice/new" element={<MainLayout><InvoiceForm /></MainLayout>} />
-        <Route path="/settings" element={<MainLayout><Settings /></MainLayout>} />
-
-
+        <Route path="/invoices"    element={<MainLayout><InvoiceDashboard /></MainLayout>} />
+        <Route path="/settings"    element={<MainLayout><Settings /></MainLayout>} />
       </Routes>
     </Router>
   );
