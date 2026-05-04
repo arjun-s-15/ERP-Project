@@ -2,36 +2,36 @@ services:
   # ─────────────────────────────────────────────
   # Spring Boot App (Invoice Service)
   # ─────────────────────────────────────────────
-  app:
-    build:
-      context: ./Backend/Invoice-MS
-      dockerfile: Dockerfile
-    env_file:
-      - ./Backend/Invoice-MS/.env
-    container_name: invoice-app
-    ports:
-      - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/invoice_ms
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  # app:
+  #   build:
+  #     context: ./Backend/Invoice-MS
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ./Backend/Invoice-MS/.env
+  #   container_name: invoice-app
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/invoice_ms
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #     SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
-      # Python AI service base URL (for RestTemplate / WebClient calls)
-      AI_SERVICE_URL: http://ai-service:8000
-      #  MAIL CONFIG
-      SPRING_MAIL_HOST: smtp.gmail.com
-      SPRING_MAIL_PORT: 587
-      SPRING_MAIL_USERNAME: arjunsingh1204@gmail.com
-      SPRING_MAIL_PASSWORD: vkrpyjgsqdnyylfv
-      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
-      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
-    networks:
-      - app-network
-    restart: unless-stopped
+  #     # Python AI service base URL (for RestTemplate / WebClient calls)
+  #     AI_SERVICE_URL: http://ai-service:8000
+  #     #  MAIL CONFIG
+  #     SPRING_MAIL_HOST: smtp.gmail.com
+  #     SPRING_MAIL_PORT: 587
+  #     SPRING_MAIL_USERNAME: arjunsingh1204@gmail.com
+  #     SPRING_MAIL_PASSWORD: vkrpyjgsqdnyylfv
+  #     SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
+  #     SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
+  #   networks:
+  #     - app-network
+  #   restart: unless-stopped
 
   # ─────────────────────────────────────────────
   # Python / FastAPI AI Service
@@ -65,24 +65,24 @@ services:
   # ─────────────────────────────────────────────
   # MySQL 8 – Shared Database
   # ─────────────────────────────────────────────
-  db:
-    image: mysql:8
-    container_name: mysql-db
-    restart: always
-    environment:
-      MYSQL_DATABASE: invoice_ms
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app-network
+  # db:
+  #   image: mysql:8
+  #   container_name: mysql-db
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: invoice_ms
+  #     MYSQL_ROOT_PASSWORD: root
+  #   ports:
+  #     - "3307:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - app-network
 
   frontend:
     build:
