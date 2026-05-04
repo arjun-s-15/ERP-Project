@@ -1,4 +1,28 @@
 services:
+ # Inventory Microservice (Spring Boot)
+  # ─────────────────────────────────────────────
+  inventory-service:
+    build:
+      context: ./Backend/Inventory-MS
+      dockerfile: Dockerfile
+    container_name: inventory-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/inventory_ms
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # If inventory calls AI service
+      AI_SERVICE_URL: http://ai-service:8000
+
+    networks:
+      - app-network
+    restart: unless-stopped
   # ─────────────────────────────────────────────
   # Spring Boot App (Invoice Service)
   # ─────────────────────────────────────────────
