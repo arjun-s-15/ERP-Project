@@ -33,6 +33,37 @@ services:
       - app-network
     restart: unless-stopped
 
+  inventory-ms:
+    build:
+      context: ./Backend/Inventory-MS
+      dockerfile: Dockerfile
+    env_file:
+      - ./Backend/Inventory-MS/.env
+    container_name: inventory-app
+    ports:
+      - "8082:8082"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/inventory_ms
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # Python AI service base URL (for RestTemplate / WebClient calls)
+      AI_SERVICE_URL: http://ai-service:8000
+      #  MAIL CONFIG
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: arjunsingh1204@gmail.com
+      SPRING_MAIL_PASSWORD: vkrpyjgsqdnyylfv
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
+    networks:
+      - app-network
+    restart: unless-stopped
+
   # ─────────────────────────────────────────────
   # Python / FastAPI AI Service
   # ─────────────────────────────────────────────
