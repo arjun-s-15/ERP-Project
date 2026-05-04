@@ -117,13 +117,13 @@ body.with-sidebar {
   gap: 16px;
 }
 
-.icon-btn {
+/* .icon-btn {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 18px;
   color: var(--muted);
-}
+} */
 
 .avatar-sm {
   width: 36px;

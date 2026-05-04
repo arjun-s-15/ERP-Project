@@ -14,7 +14,6 @@ load_dotenv()
 
 BUCKET_NAME = "insighto-s3-bucket"
 FILE_KEY = "data/store_sales_forecast.parquet"
-SQS_QUEUE_URL = "https://sqs.us-east-1.amazonaws.com/048013208170/InsightoQueue"
 
 default_args = {
     'owner': 'atharv',
