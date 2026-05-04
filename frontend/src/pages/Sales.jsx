@@ -89,16 +89,16 @@ const Sales = () => {
       setProcessing(true);
 
       setStep("Running multi-agent transformation", "loading");
-      // const graphRes = await axios.post("http://localhost:8000/run-graph", {
-      //   input_filename: selectedFile.name,
-      // });
-      // setOutputPath(graphRes.data.s3_output_path);
-      // console.log("graphRes.data:", graphRes.data);
-      setOutputPath(`data/${selectedFile.name}`); // For testing without multi-agent graph
+      const graphRes = await axios.post("http://localhost:8000/run-graph", {
+        input_filename: selectedFile.name,
+      });
+      setOutputPath(graphRes.data.s3_output_path);
+      console.log("graphRes.data:", graphRes.data);
+      // setOutputPath(`data/${selectedFile.name}`); // For testing without multi-agent graph
       setStep("Running multi-agent transformation", "done");
 
-      // const outputFilename = graphRes.data.s3_output_path.split("/").pop();
-      const outputFilename = `transformed_sample_dataset_6m.parquet`; // For testing without multi-agent graph
+      const outputFilename = graphRes.data.s3_output_path.split("/").pop();
+      // const outputFilename = `transformed_sample_dataset_6m.parquet`; // For testing without multi-agent graph
 
       setStep("Triggering Airflow pipeline", "loading");
       const airflowRes = await axios.post(
