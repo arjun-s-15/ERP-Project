@@ -1,0 +1,143 @@
+/* Container spacing */
+.sales-container {
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Top File Bar ── */
+.file-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--white);
+  padding: 14px 18px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f1f5f9;
+}
+
+/* Left side info */
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Labels */
+.file-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.file-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Status badges */
+.status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.status.uploading {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.status.processing {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Remove button */
+.btn-remove {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-remove:hover {
+  background: #dc2626;
+}
+
+.steps-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.step-row.done {
+  color: #111827;
+}
+.step-row.error {
+  color: #dc2626;
+}
+
+.step-icon {
+  font-size: 13px;
+  font-weight: 600;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon.done {
+  background: #dcfce7;
+  color: #15803d;
+}
+.step-icon.error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.step-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.step-row.running {
+  color: #6b7280;
+  font-style: italic;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

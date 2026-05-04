@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
@@ -10,6 +11,8 @@ from mlflow.tracking import MlflowClient
 
 from utils import get_predictors
 from analytics import router as analytics_router
+from pipelines import router as pipelines_router
+from predictions import router as predictions_router
 
 model = None
 model_metadata = {
@@ -71,7 +74,18 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
 app.include_router(analytics_router)
+app.include_router(pipelines_router)
+app.include_router(predictions_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class PredictionInput(BaseModel):
     """

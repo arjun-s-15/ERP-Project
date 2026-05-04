@@ -69,6 +69,7 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: background .18s;
+  text-decoration: none;
 }
 
 .nav-item:hover {
@@ -78,6 +79,10 @@ body {
 
 .nav-item.active {
   background: rgba(255,255,255,.18);
+  color: #fff;
+}
+.nav-item:hover, .nav-item.active {
+  text-decoration: none;
   color: #fff;
 }
 
@@ -117,13 +122,13 @@ body.with-sidebar {
   gap: 16px;
 }
 
-/* .icon-btn {
+.icon-btn {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 18px;
   color: var(--muted);
-} */
+}
 
 .avatar-sm {
   width: 36px;
@@ -910,10 +915,12 @@ select {
 .danger-card .card-title { color: var(--red); }
 
 /* ── Login page ── */
-body.login-page {
+.login-page {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-height: 100vh;
   background: var(--blue-light);
 }
 
@@ -1002,4 +1009,220 @@ body.login-page {
 .toast.show {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ── Page-specific overrides for the invoice form card ── */
+.invoice-form-card {
+  background: var(--white); /* Sets white background from shared erp.css variable */
+  border-radius: 12px; /* Curves the card corners */
+  padding: 32px 36px; /* Adds space inside the card around the content */
+  box-shadow: 0 1px 4px rgba(0,0,0,.06); /* Applies a subtle shadow for a raised effect */
+  max-width: 860px; /* Restricts the card width to ensure readable field lengths on wider screens */
+}
+/* Refined Invoice Form Styling */
+.invoice-form-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 32px 36px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Section Dividers with text */
+.form-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--muted);
+  margin: 32px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Improved Item Row Spacing */
+.item-row {
+  display: grid;
+  grid-template-columns: 2.5fr 2fr 80px 140px 100px 40px;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: #fcfcfc;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.item-row:hover {
+  border-color: var(--border);
+  background: var(--white);
+}
+
+/* Action Buttons Styling */
+.btn-add-item {
+  margin: 16px 0 32px;
+  background: var(--blue-light);
+  border: 1px dashed var(--blue);
+  padding: 10px 24px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+.btn-add-item:hover {
+  background: var(--blue);
+  color: var(--white);
+}
+/* Update Line Items Grid to match reference image */
+.line-col-headers {
+  display: grid;
+  grid-template-columns: 2.5fr 2.5fr 0.8fr 1.5fr 1.2fr 44px; /* Adjusted column widths */
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: 2.5fr 2.5fr 0.8fr 1.5fr 1.2fr 44px; /* Matches headers */
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+/* Light background for line item inputs as seen in image */
+.item-row input {
+  background: #f8fafc; /* Very light blue/gray background */
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+/* Totals Box Styling */
+.totals-box {
+  width: 340px; /* Slightly wider */
+  margin-left: auto;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.totals-row .value {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* The Blue Total Row from the image */
+.totals-row.grand {
+  background: #2563eb; /* Exact blue from image */
+  color: white;
+  border-bottom: none;
+}
+
+.totals-row.grand .label, 
+.totals-row.grand .value {
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Ensure all form elements have a uniform appearance */
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="date"],
+.field textarea {
+  width: 100%;
+  height: 42px; /* Set a fixed height for uniformity */
+  padding: 10px 14px;
+  border: 1.5px solid var(--border); /* Standardized border thickness */
+  border-radius: 8px; /* Consistent rounded corners */
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  appearance: none; /* Removes default browser styling for dates */
+}
+
+/* Adjust Textarea for Notes while keeping style uniform */
+.field textarea {
+  height: auto;
+  min-height: 42px; /* Matches the height of other inputs */
+  line-height: 20px;
+}
+
+/* Focus state for all inputs */
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  background: var(--white);
+}
+
+/* Specific fix for Date inputs to match height in Chrome/Safari */
+.field input[type="date"] {
+  display: flex;
+  align-items: center;
+}
+/* Styling for the auto-generated information badge */
+.auto-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Space between the lightning icon and text */
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb; /* Matches the blue text in the image */
+  background: #eff6ff; /* Matches the soft blue background in the image */
+  padding: 8px 18px;
+  border-radius: 50px; /* Creates the pill shape */
+  letter-spacing: 0.3px;
+  margin-bottom: 24px;
+}
+
+/* Ensure the lightning icon matches the text color */
+.auto-badge svg {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+/* Full-width Green Generate Button */
+.btn-generate {
+  width: 100%; /* Makes the button the full width of its container (the card) */
+  padding: 14px; /* Increases vertical height for better UI */
+  background: var(--green-btn); /* Uses the dark green defined in your root */
+  color: var(--white); /* White text */
+  border: none; /* Removes default button border */
+  border-radius: 8px; /* Matches the rounding of your input fields */
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 28px;
+  transition: background .18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-generate:hover {
+  background: var(--green-hover); /* Darker green on hover */
 }
