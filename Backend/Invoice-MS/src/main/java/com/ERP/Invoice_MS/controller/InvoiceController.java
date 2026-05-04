@@ -23,6 +23,27 @@ public class InvoiceController {
         this.s3UrlService = s3UrlService;
         this.invoiceService = invoiceService;
     }
+    @PostMapping("/generate")
+    public ResponseEntity<byte[]> generateInvoice(@RequestBody InvoiceEntity invoiceEntity) throws Exception {
+
+        // Step 1: Business logic
+        String presignedUrl = invoiceService.createInvoiceAndUpload(invoiceEntity);
+        System.out.println("Invoice uploaded: " + presignedUrl);
+
+        // Step 2: Generate PDF
+        byte[] pdf = invoiceService.generateInvoicePdf(invoiceEntity);
+
+        String invoiceNumber = invoiceEntity.getInvoiceNumber() != null
+                ? invoiceEntity.getInvoiceNumber()
+                : "draft";
+
+        // Step 3: Send PDF to React
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=invoice-" + invoiceNumber + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
     @PatchMapping("/{id}/status")
     public InvoiceEntity updateInvoiceStatus(
             @PathVariable UUID id,
@@ -51,27 +72,7 @@ public class InvoiceController {
                 .body(pdf);
     }
 
-    @PostMapping("/generate")
-    public ResponseEntity<byte[]> generateInvoice(@RequestBody InvoiceEntity invoiceEntity) throws Exception {
 
-        // Step 1: Business logic
-        String presignedUrl = invoiceService.createInvoiceAndUpload(invoiceEntity);
-        System.out.println("Invoice uploaded: " + presignedUrl);
-
-        // Step 2: Generate PDF
-        byte[] pdf = invoiceService.generateInvoicePdf(invoiceEntity);
-
-        String invoiceNumber = invoiceEntity.getInvoiceNumber() != null
-                ? invoiceEntity.getInvoiceNumber()
-                : "draft";
-
-        // Step 3: Send PDF to React
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=invoice-" + invoiceNumber + ".pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
-    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInvoice(@PathVariable UUID id) {
         invoiceService.deleteInvoice(id);

@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                        .requestMatchers("/api/login").permitAll() // Allow access to login endpoint
-                                .requestMatchers("/api/invoice/**").authenticated() // Require login for data
+                                .requestMatchers("/api/invoice/**").permitAll() // Require login for data
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
