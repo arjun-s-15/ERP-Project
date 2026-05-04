@@ -12,17 +12,17 @@ const navLinks = [
       </>
     ),
   },
-
-  // {
-  //   path: "/invoice/new",
-  //   label: "Create Invoice",
-  //   icon: (
-  //     <>
-  //       <line x1="12" y1="5" x2="12" y2="19" />
-  //       <line x1="5" y1="12" x2="19" y2="12" />
-  //     </>
-  //   ),
-  // },
+  {
+    path: "/inventory", // ── New Inventory Link ──
+    label: "Inventory",
+    icon: (
+      <>
+        <path d="M21 8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16Z" />
+        <path d="m3.3 7 8.7 5 8.7-5" />
+        <path d="M12 22V12" />
+      </>
+    ),
+  },
 
   {
     path: "/sales",

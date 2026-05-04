@@ -13,14 +13,15 @@ import Sales from "./pages/Sales";
 import InvoiceForm from './pages/InvoiceForm';
 import Settings from './pages/Settings';
 import InvoiceDashboard from './pages/InvoiceDashboard';
+import InventoryPage from './pages/InventoryDashboard'; // ✅ IMPORTED
 
 const MainLayout = ({ children }) => {
   const location = useLocation();
 
-  // ✅ FIXED: exact path matching so /invoice/new doesn't bleed into /invoices
   const getTitle = (path) => {
     if (path === '/invoice/new') return 'New Invoice';
     if (path === '/invoices')    return 'Invoices';
+    if (path === '/inventory')   return 'Inventory Management'; // ✅ TITLE ADDED
     if (path === '/sales')       return 'Sales';
     if (path === '/settings')    return 'Settings';
     return 'ERP Dashboard';
@@ -51,6 +52,7 @@ function App() {
         <Route path="/sales"       element={<MainLayout><Sales /></MainLayout>} />
         <Route path="/invoice/new" element={<MainLayout><InvoiceForm /></MainLayout>} />
         <Route path="/invoices"    element={<MainLayout><InvoiceDashboard /></MainLayout>} />
+        <Route path="/inventory"   element={<MainLayout><InventoryPage /></MainLayout>} /> {/* ✅ ROUTE ADDED */}
         <Route path="/settings"    element={<MainLayout><Settings /></MainLayout>} />
       </Routes>
     </Router>
