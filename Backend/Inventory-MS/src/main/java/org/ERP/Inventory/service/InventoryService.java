@@ -33,7 +33,7 @@ public class InventoryService {
             maxAttempts = 3, backoff = @Backoff(delay = 100))
     @Transactional
     public InventoryResponse addStock(AddStockRequest req) {
-        org.ERP.Inventory.service.Inventory inv = findInventory(req.getProductId(), req.getWarehouseId());
+        Inventory inv = findInventory(req.getProductId(), req.getWarehouseId());
 
         inv.setAvailableQuantity(inv.getAvailableQuantity() + req.getQuantity());
         inventoryRepo.save(inv);
