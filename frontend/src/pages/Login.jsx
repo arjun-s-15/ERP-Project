@@ -27,26 +27,35 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    // Basic Validation
-    if (!formData.email || !formData.password) {
-      setError('Please enter both email and password.');
-      setLoading(false);
-      return;
-    }
+    const params = new URLSearchParams();
+    params.append('username', formData.email); // Spring Security expects 'username' by default
+    params.append('password', formData.password);
 
-    // Mock Authentication Logic
-    // Replace this with your actual API call: axios.post('/api/auth', formData)
-    setTimeout(() => {
-      if (formData.email === 'admin@erp.com' && formData.password === 'password123') {
-        console.log('Login Successful');
-        localStorage.setItem('isAuthenticated', 'true');
-        navigate('/sales'); 
-      } else {
-        setError('Invalid credentials. Try admin@erp.com / password123');
-      }
-      setLoading(false);
-    }, 1000); // Simulating network delay
-  };
+    try {
+        const response = await fetch('http://localhost:8080/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params,
+            // Important for cross-origin session cookies (Port 5173 to 8080)
+            credentials: 'include', 
+        });
+
+        if (response.ok) {
+            console.log('Login Successful');
+            localStorage.setItem('isAuthenticated', 'true');
+            navigate('/sales'); 
+        } else {
+            setError('Invalid credentials or server error.');
+        }
+    } catch (err) {
+        setError('Connection failed. Is the backend running?');
+        console.error(err);
+    } finally {
+        setLoading(false);
+    }
+};
 
   return (
     <div className="login-page">
