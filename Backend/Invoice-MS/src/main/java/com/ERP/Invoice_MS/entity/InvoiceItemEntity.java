@@ -1,5 +1,6 @@
 package com.ERP.Invoice_MS.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,7 +26,7 @@ public class InvoiceItemEntity{
 
     @ManyToOne
     @JoinColumn(name = "invoice_id")
-    @JsonIgnore
+    @JsonBackReference
     private InvoiceEntity invoice;
 
     private String itemName;

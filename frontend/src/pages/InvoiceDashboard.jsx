@@ -65,6 +65,7 @@ const InvoiceDashboard = () => {
       console.error("Status update failed:", err);
     }
   };
+
 // test comment
   const deleteInvoice = async (id) => {
     if (!window.confirm("Delete this invoice?")) return;

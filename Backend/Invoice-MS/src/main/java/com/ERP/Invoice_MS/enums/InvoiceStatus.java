@@ -6,6 +6,5 @@ package com.ERP.Invoice_MS.enums;
         SENT,
         PAID,
         OVERDUE
-
     }
 
