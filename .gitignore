@@ -2,3 +2,6 @@
 .DS_Store
 *.pyc
 *.log
+logs/
+node_modules/
+test/
