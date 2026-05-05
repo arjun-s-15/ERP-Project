@@ -33,7 +33,15 @@ public class InventoryService {
             maxAttempts = 3, backoff = @Backoff(delay = 100))
     @Transactional
     public InventoryResponse addStock(AddStockRequest req) {
-        Inventory inv = findInventory(req.getProductId(), req.getWarehouseId());
+        // ✅ create if not exists, find if exists
+        Inventory inv = inventoryRepo
+                .findByProductIdAndWarehouseId(req.getProductId(), req.getWarehouseId())
+                .orElseGet(() -> Inventory.builder()
+                        .productId(req.getProductId())
+                        .warehouseId(req.getWarehouseId())
+                        .availableQuantity(0)
+                        .reservedQuantity(0)
+                        .build());
 
         inv.setAvailableQuantity(inv.getAvailableQuantity() + req.getQuantity());
         inventoryRepo.save(inv);

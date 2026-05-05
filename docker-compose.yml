@@ -37,8 +37,6 @@ services:
     build:
       context: ./Backend/Inventory-MS
       dockerfile: Dockerfile
-    env_file:
-      - ./Backend/Inventory-MS/.env
     container_name: inventory-app
     ports:
       - "8082:8082"
@@ -107,6 +105,8 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # add this
+
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 10s
@@ -122,6 +122,9 @@ services:
     container_name: frontend
     ports:
       - "3000:80"
+    depends_on:        # add this
+    - app
+    - inventory-ms
     networks:
       - app-network
     restart: always
